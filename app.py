@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from wordcloud import WordCloud
-
+from PIL import Image
 
 # Ignore PerformanceWarning
 warnings.filterwarnings('ignore', category=pd.errors.PerformanceWarning)
@@ -313,14 +313,17 @@ def pie_chart(data_dict):
 def wordcloud(df, colormap):
     text = ' '.join(df['Normalized_English_Comment'].dropna())
     try:
+        # Generate word cloud
         wordcloud = WordCloud(width=1200, height=1000, background_color='white', colormap=colormap).generate(text)
         
-        plt.figure(figsize=(12, 10))  # Increased figure size
+        # Create a figure and display the word cloud
+        plt.figure(figsize=(12, 10))
         plt.imshow(wordcloud, interpolation='bilinear')
         plt.axis('off')
         
+        # Save the figure to a buffer
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.05, dpi=300)  # Added padding
+        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.05, dpi=300)
         buf.seek(0)
         plt.close()
         
@@ -473,10 +476,10 @@ def main():
                 unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
-        st.image(visualizations[selected_subtopic]['pro_israel_wordcloud'], use_column_width=True)
+        st.image(Image.open(visualizations[selected_subtopic]['pro_israel_wordcloud']), use_column_width=True)
 
     with col2:
-        st.image(visualizations[selected_subtopic]['pro_palestine_wordcloud'], use_column_width=True)
+        st.image(Image.open(visualizations[selected_subtopic]['pro_palestine_wordcloud']), use_column_width=True)
 
         
 if __name__ == "__main__":
