@@ -14,6 +14,10 @@ from wordcloud import WordCloud
 # Ignore PerformanceWarning
 warnings.filterwarnings('ignore', category=pd.errors.PerformanceWarning)
 
+# Google Drive .zip file ID
+FILE_NAME = 'Preprocessed_Dataset.csv'
+ZIP_FILE_PATH = 'Preprocessed_Dataset_Sample.zip'
+
 # Function to parse the Sub_Topics string
 def parse_subtopics(subtopics_str):
     if isinstance(subtopics_str, str):
@@ -273,27 +277,24 @@ def heatmap(df, subtopic):
     return fig
 
 
-def pie_chart(df):
-    data = df.copy()
+def pie_chart(data_dict):
+    # Convert the dictionary to lists for labels and sizes
+    labels = list(data_dict.keys())
+    sizes = list(data_dict.values())
 
-    # Calculate the ratios and average scores
-    affiliation_counts = data['Affiliation'].value_counts()
-
-    # Data for donut chart
-    sizes = affiliation_counts.values
-    labels = affiliation_counts.index
-    colors = ['rgba(0, 128, 0, 0.3)', 'rgba(0, 0, 139, 0.3)']
+    # Define colors
+    colors = ['rgba(0, 0, 139, 0.3)', 'rgba(0, 128, 0, 0.3)', 'rgba(169, 169, 169, 0.3)']  # Dark grey for 'Unclassified'
 
     # Create hover text
     hover_text = [
         f'{size / sum(sizes) * 100:.2f}% of the Comments'
-        for label, size in zip(labels, sizes)
+        for size in sizes
     ]
 
     # Sort the slices to start with the smaller one
     sorted_indices = np.argsort(sizes)[::-1]
-    sizes = sizes[sorted_indices]
-    labels = labels[sorted_indices]
+    sizes = np.array(sizes)[sorted_indices]
+    labels = np.array(labels)[sorted_indices]
     colors = np.array(colors)[sorted_indices]
     hover_text = np.array(hover_text)[sorted_indices]
 
@@ -305,6 +306,7 @@ def pie_chart(df):
         height=150,  # Adjust height
         margin=dict(l=10, r=10, t=10, b=10)  # Adjust margins
     )
+    
     return fig
 
 
@@ -329,17 +331,26 @@ def wordcloud(df, colormap):
 
 
 @st.cache_data
-def load_and_process_data(zip_path, csv_filename):
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall('.')
-    df = pd.read_csv(csv_filename, index_col=None, on_bad_lines='skip')
-    df['Sub_Topics'] = df['Sub_Topics'].apply(parse_subtopics)
-    valid_affiliations = {'Pro-Israel', 'Pro-Palestine'}
-    df = df[df['Affiliation'].isin(valid_affiliations)]
-    df['Score'] = pd.to_numeric(df['Score'], errors='coerce')
-    df = df.dropna(how='any').reset_index(drop=True)
-    df = df[df['Sub_Topics'].apply(lambda x: x != set())].reset_index()
-    return df
+def load_and_process_data(zip_filepath, csv_filename):
+    try:
+        # Extract the zip file in memory
+        with zipfile.ZipFile(zip_filepath, 'r') as zip_ref:
+            with zip_ref.open(csv_filename) as f:
+                df = pd.read_csv(f, index_col=None, on_bad_lines='skip')
+
+        # Process the DataFrame
+        df['Sub_Topics'] = df['Sub_Topics'].apply(parse_subtopics)
+        valid_affiliations = {'Pro-Israel', 'Pro-Palestine'}
+        df = df[df['Affiliation'].isin(valid_affiliations)]
+        df['Score'] = pd.to_numeric(df['Score'], errors='coerce')
+        df = df.dropna(how='any').reset_index(drop=True)
+        df = df[df['Sub_Topics'].apply(lambda x: x != set())].reset_index(drop=True)
+
+        return df
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return pd.DataFrame()  # Return an empty DataFrame on error
 
 
 @st.cache_resource
@@ -398,7 +409,7 @@ def main():
     st.markdown("<h2 style='text-align: center; color: darkgrey;'>Regarding the Israel-Gaza War (2023-2024)</h2>",
                 unsafe_allow_html=True)
 
-    df = load_and_process_data('Preprocessed_Dataset.zip', 'Preprocessed_Dataset.csv')
+    df = load_and_process_data(ZIP_FILE_PATH, FILE_NAME)
 
     pro_israel_score = df[df['Affiliation'] == 'Pro-Israel']['Score'].mean()
     pro_palestine_score = df[df['Affiliation'] == 'Pro-Palestine']['Score'].mean()
@@ -411,7 +422,10 @@ def main():
                     "</div>", unsafe_allow_html=True)
 
     with col2:
-        pie_fig = pie_chart(df)
+        pie_fig = pie_chart(data_dict = {
+        'Pro-Israel': 11069,
+        'Pro-Palestine': 473671,
+        'Unclassified': 43722})
         st.plotly_chart(pie_fig, use_container_width=True)
 
     with col3:
@@ -426,7 +440,8 @@ def main():
             <b>ℹ️ Note:</b><br>
             Comments are classified into Pro-Israel and Pro-Palestine groups using a trained SVM model. 
             A comment is considered Pro-X if its probability is 0.6 or higher and at least twice as likely as the other group. 
-            About 12.9% of the comments are unclassified and not shown here.
+            About 8.2% of the comments are unclassified and not shown here. 
+            An equal, random sample of the data was used to create this dashboard.
         </p>
     </div>
     """, unsafe_allow_html=True)
