@@ -310,8 +310,15 @@ def pie_chart(data_dict):
     return fig
 
 
-def wordcloud(df, colormap):
-    text = ' '.join(df['Normalized_English_Comment'].dropna())
+def wordcloud(df, subtopic, colormap):
+    data = df.copy()
+
+    if subtopic != "Overall":
+        data = data.explode('Sub_Topics')
+        data = data[data['Sub_Topics'] == subtopic]
+        
+    text = ' '.join(data['Normalized_English_Comment'].dropna())
+    
     try:
         # Generate word cloud
         wordcloud = WordCloud(width=1200, height=1000, background_color='white', colormap=colormap).generate(text)
@@ -364,8 +371,8 @@ def precompute_visualizations(df):
     for subtopic in subtopics:
         heatmap_fig = heatmap(df, subtopic)
         sentiment_histogram_fig = sentiment_histogram(df, subtopic)
-        pro_israel_wordcloud = wordcloud(df, 'Blues')
-        pro_palestine_wordcloud = wordcloud(df, 'Greens')
+        pro_israel_wordcloud = wordcloud(df, subtopic, 'Blues')
+        pro_palestine_wordcloud = wordcloud(df, subtopic, 'Greens')
         visualizations[subtopic] = {
             'heatmap': heatmap_fig,
             'sentiment_histogram': sentiment_histogram_fig,
