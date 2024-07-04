@@ -451,7 +451,7 @@ def main():
             Comments are classified into Pro-Israel and Pro-Palestine groups using a trained SVM model. 
             A comment is considered Pro-X if its probability is 0.6 or higher and at least twice as likely as the other group. 
             About 8.2% of the comments are unclassified and not shown here. 
-            An equal, random sample of the data was used to create this dashboard.
+            An equally partitioned, random sample of the data was used to create this dashboard.
         </p>
     </div>
     """, unsafe_allow_html=True)
