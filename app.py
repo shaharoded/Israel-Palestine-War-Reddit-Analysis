@@ -197,11 +197,21 @@ def sentiment_histogram(df, selected_subtopic):
     # Update layout
     fig.update_layout(
         showlegend=True,
+        legend=dict(
+            x=1, 
+            y=0.5, 
+            traceorder='normal',
+            font=dict(
+                size=12,
+                color='#2f2f2f'
+            ),
+            bgcolor='rgba(255, 255, 255, 0.5)'
+        ),
         xaxis_title='Polarity Sentiment',
         yaxis_title='Percentage of Comments',
         barmode='group',  # Side-by-side bars
         yaxis=dict(tickvals=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], ticktext=["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"]),
-        margin=dict(t=0, b=15, l=50, r=50)  # Adjusted margins
+        margin=dict(t=10, b=15, l=50, r=50)  # Adjusted margins
     )
 
     return fig
