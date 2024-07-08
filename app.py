@@ -20,6 +20,9 @@ ZIP_FILE_PATH = 'Preprocessed_Dataset_Sample.zip'
 
 # Function to parse the Sub_Topics string
 def parse_subtopics(subtopics_str):
+    '''
+    Fix subtopics column to a workable format.
+    '''
     if isinstance(subtopics_str, str):
         subtopics = re.sub(r'[{}]', '', subtopics_str).split(', ')
         subtopics = subtopics = [subtopic.strip("'").capitalize() for subtopic in subtopics]
@@ -27,6 +30,9 @@ def parse_subtopics(subtopics_str):
     return set()
 
 def balanced_sample(df, column):
+    '''
+    Create a balanced sample of comments from both groups
+    '''
     # Count the number of occurrences in each group
     group_counts = df[column].value_counts()
 
@@ -339,6 +345,10 @@ def wordcloud(df, subtopic, colormap):
         data = data[data['Sub_Topics'] == subtopic]
         
     text = ' '.join(data['Normalized_English_Comment'].dropna())
+
+    if not text:
+        st.error("No text data available to generate wordcloud.")
+        return None
     
     try:
         # Generate word cloud
@@ -363,6 +373,9 @@ def wordcloud(df, subtopic, colormap):
 
 @st.cache_data
 def load_and_process_data(zip_filepath, csv_filename):
+    '''
+    Pre-process the data, and cache to save calculations.
+    '''
     try:
         # Extract the zip file in memory
         with zipfile.ZipFile(zip_filepath, 'r') as zip_ref:
@@ -386,18 +399,30 @@ def load_and_process_data(zip_filepath, csv_filename):
 
 @st.cache_resource
 def precompute_visualizations(df):
+    '''
+    Pre-compute all visualizations to avoid heavy calculation for every filter change.
+    '''
     subtopics = ['Overall'] + df['Sub_Topics'].explode().unique().tolist()
-    visualizations = {}
-    radar_fig = radar(df, 'Toxicity_Score')
+    features_mapper = {
+        'Toxicity Score': 'Toxicity_Score',
+        'Polarity Sentiment': 'Polarity_Sentiment',
+        'Belief Speech': 'Belief_Similarity',
+        'Factual Speech': 'Fact_Similarity',
+        'Comment Score': 'Score',
+        'Controversiality Ratio': 'Controversiality'
+    } # Built like {feature: column name}
+    visualizations = {'by_subtopic': {}, 'by_feature': {}}
+    for feature in features_mapper:
+        radar_fig = radar(df, features_mapper[feature])
+        visualizations['by_feature'][feature] = radar_fig
     for subtopic in subtopics:
         heatmap_fig = heatmap(df, subtopic)
         sentiment_histogram_fig = sentiment_histogram(df, subtopic)
         pro_israel_wordcloud = wordcloud(df, subtopic, 'Blues')
         pro_palestine_wordcloud = wordcloud(df, subtopic, 'Greens')
-        visualizations[subtopic] = {
+        visualizations['by_subtopic'][subtopic] = {
             'heatmap': heatmap_fig,
             'sentiment_histogram': sentiment_histogram_fig,
-            'radar': radar_fig,
             'pro_israel_wordcloud': pro_israel_wordcloud,
             'pro_palestine_wordcloud': pro_palestine_wordcloud
         }
@@ -435,9 +460,6 @@ def main():
         }}
     </style>
     """
-
-    # Inject custom CSS
-    st.markdown(select_box_css, unsafe_allow_html=True)
     
     st.markdown(f"<h1 style='text-align: center; color: {text_color};'>"
                 "<span style='color: darkblue;'>Pro-Israel</span> VS. "
@@ -487,33 +509,42 @@ def main():
 
     visualizations = precompute_visualizations(df)
 
-    # create SelectBox
+    # create SelectBox for SubTopic
+    # Inject custom CSS
+    st.markdown(select_box_css, unsafe_allow_html=True)
     subtopics = ['Overall'] + df['Sub_Topics'].explode().unique().tolist()
     selected_subtopic = st.selectbox('Select Subtopic', subtopics)
+    
+    # create SelectBox for Feature
+    # Inject custom CSS
+    st.markdown(select_box_css, unsafe_allow_html=True)
+    features = ['Toxicity Score', 'Polarity Sentiment', 'Belief Speech',
+        'Factual Speech', 'Comment Score', 'Controversiality Ratio']
+    selected_feature = st.selectbox('Select Feature', features)
 
     col1, empty_col, col2 = st.columns([1, 0.05, 1])
     with col1:
         st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Average Toxicity Score by SubTopic</h3>",
                     unsafe_allow_html=True)
-        st.plotly_chart(visualizations[selected_subtopic]['radar'], use_container_width=True)
+        st.plotly_chart(visualizations['by_feature'][selected_feature]['radar'], use_container_width=True)
 
     with col2:
         st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Sentiment Distribution by SubTopic</h3>",
                     unsafe_allow_html=True)
-        st.plotly_chart(visualizations[selected_subtopic]['sentiment_histogram'], use_container_width=True)
+        st.plotly_chart(visualizations['by_subtopic'][selected_subtopic]['sentiment_histogram'], use_container_width=True)
 
     st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Factual vs Emotional Speech by Affiliation</h3>",
                 unsafe_allow_html=True)
-    st.plotly_chart(visualizations[selected_subtopic]['heatmap'], use_container_width=True)
+    st.plotly_chart(visualizations['by_subtopic'][selected_subtopic]['heatmap'], use_container_width=True)
 
     st.markdown(f"<h3 style='text-align: center; color: {text_color};'>WordClouds</h3>",
                 unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
-        st.image(Image.open(visualizations[selected_subtopic]['pro_israel_wordcloud']), use_column_width=True)
+        st.image(Image.open(visualizations['by_subtopic'][selected_subtopic]['pro_israel_wordcloud']), use_column_width=True)
 
     with col2:
-        st.image(Image.open(visualizations[selected_subtopic]['pro_palestine_wordcloud']), use_column_width=True)
+        st.image(Image.open(visualizations['by_subtopic'][selected_subtopic]['pro_palestine_wordcloud']), use_column_width=True)
 
         
 if __name__ == "__main__":
