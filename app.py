@@ -395,7 +395,8 @@ def precompute_visualizations(df):
 
 
 def main():
-    text_color = '#2f2f2f'
+    text_color = 'darkgrey'
+    dark_text_color = '#2f2f2f'
     select_box_css = f"""
     <style>
         /* Style the select box container */
@@ -461,7 +462,7 @@ def main():
                     "</div>", unsafe_allow_html=True)
 
     st.markdown(f"""
-    <div style='color: {text_color}; padding: 10px; border-radius: 5px;'>
+    <div style='color: {dark_text_color}; padding: 10px; border-radius: 5px;'>
         <p style='font-size: small;'>
             <b>ℹ️ Note:</b><br>
             Comments are classified into Pro-Israel and Pro-Palestine groups using a trained SVM model. 
@@ -495,7 +496,7 @@ def main():
                 unsafe_allow_html=True)
     st.plotly_chart(visualizations[selected_subtopic]['heatmap'], use_container_width=True)
 
-    st.markdown("<h3 style='text-align: center; color: darkgrey;'>WordClouds</h3>",
+    st.markdown(f"<h3 style='text-align: center; color: {text_color};'>WordClouds</h3>",
                 unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
