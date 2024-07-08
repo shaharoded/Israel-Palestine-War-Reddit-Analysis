@@ -304,10 +304,10 @@ def pie_chart(data_dict):
     fig.update_layout(
          annotations=[
             dict(
-                text="Classification Distribution",
+                text="<b>Classification Distribution</b>",
                 x=0.5,
                 y=1.25,
-                font=dict(size=12, color="darkgrey"),
+                font=dict(size=14, color="darkgrey"),
                 showarrow=False,
                 xanchor='center'
             )
