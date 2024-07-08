@@ -2,6 +2,20 @@
 
 This project provides a visualization dashboard to analyze and compare Pro-Palestinian and Pro-Israel online content & comments based on various metrics such as Toxicity Score, Sentiment Distribution, and more, while breaking these aspects to different topics and speech type. The dashboard is built using Streamlit and Plotly for interactive visualizations.
 
+The original dataset is available here:
+
+https://www.kaggle.com/datasets/asaniczka/reddit-on-israel-palestine-daily-updated
+
+The dashboard is available on:
+
+https://israel-palestine-war-reddit-analysis-6nekyrcmznptivya9ogcpl.streamlit.app/
+
+All dataprocess codefiles are available in this repository.
+
+A comprehensive report is publicly available (in Hebrew) on my Google Drive, in this link:
+
+https://docs.google.com/document/d/181ICcO0SOnEkK_AeI1Tt1V52TBcZ5jyQ/edit
+
 ## Main Tasks (Questions Answered)
 
 1. **Sentiment Analysis**: Analyze the sentiment distribution for different subtopics within Pro-Palestinian and Pro-Israel content.
@@ -36,5 +50,8 @@ After running the app, Streamlit will start a local web server and open a new ta
 Push code updates to GitHub directly.
 
 ```bash
+git status
+git add app.py  # And any additional file you wish to directly update
+git commit -m "Explain why you are disrupting Git peace and quiet (what are the changes)"
 git push -u origin master
 ```
