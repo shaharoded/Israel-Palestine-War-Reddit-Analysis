@@ -520,9 +520,9 @@ def main():
 
     col1, empty_col, col2 = st.columns([1, 0.05, 1])
     with col1:
-        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Average Toxicity Score by SubTopic</h3>",
+        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Average {features} by SubTopic</h3>",
                     unsafe_allow_html=True)
-        st.plotly_chart(visualizations['by_feature'][selected_feature]['radar'], use_container_width=True)
+        st.plotly_chart(visualizations['by_feature'][selected_feature], use_container_width=True)
 
     with col2:
         st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Sentiment Distribution by SubTopic</h3>",
