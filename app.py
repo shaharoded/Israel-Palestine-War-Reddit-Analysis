@@ -304,10 +304,10 @@ def pie_chart(data_dict):
     fig.update_layout(
          annotations=[
             dict(
-                text="Distribution by Classification Group",
+                text="Classification Distribution",
                 x=0.5,
-                y=1.4,
-                font=dict(size=10, color="darkgrey"),
+                y=1.25,
+                font=dict(size=12, color="darkgrey"),
                 showarrow=False,
                 xanchor='center'
             )
@@ -434,7 +434,7 @@ def main():
     pro_israel_score = df[df['Affiliation'] == 'Pro-Israel']['Score'].mean()
     pro_palestine_score = df[df['Affiliation'] == 'Pro-Palestine']['Score'].mean()
 
-    col1, col2, col3 = st.columns([1, 1.5, 1])
+    col1, col2, col3 = st.columns([1, 1.2, 1])
     with col1:
         st.markdown(f"<div style='background-color: rgba(0, 0, 139, 0.1); padding: 10px; border-radius: 5px; height: 150px;'>"
                     f"<p style='font-size: large; text-align: center; margin-top: 30px;'>"
