@@ -302,7 +302,16 @@ def pie_chart(data_dict):
     fig = go.Figure(data=[go.Pie(labels=labels, values=sizes, hole=0.70, hoverinfo='label+text', text=hover_text, textinfo='none', marker=dict(colors=colors))])
 
     fig.update_layout(
-        title="Distribution by Classification Group",  # Add header
+         annotations=[
+            dict(
+                text="Distribution of Comments by Classification Group",
+                x=0.5,
+                y=1.2,
+                font=dict(size=20, color="darkgrey"),
+                showarrow=False,
+                xanchor='center'
+            )
+        ],
         showlegend=False,  # Remove legend
         height=150,  # Adjust height
         margin=dict(l=10, r=10, t=30, b=10)  # Adjust margins
