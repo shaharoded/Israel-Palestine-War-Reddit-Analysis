@@ -302,9 +302,10 @@ def pie_chart(data_dict):
     fig = go.Figure(data=[go.Pie(labels=labels, values=sizes, hole=0.70, hoverinfo='label+text', text=hover_text, textinfo='none', marker=dict(colors=colors))])
 
     fig.update_layout(
+        title="Distribution of Comments by\n Classification Group",  # Add header
         showlegend=False,  # Remove legend
         height=150,  # Adjust height
-        margin=dict(l=10, r=10, t=10, b=10)  # Adjust margins
+        margin=dict(l=10, r=10, t=30, b=10)  # Adjust margins
     )
     
     return fig
@@ -424,7 +425,7 @@ def main():
     pro_israel_score = df[df['Affiliation'] == 'Pro-Israel']['Score'].mean()
     pro_palestine_score = df[df['Affiliation'] == 'Pro-Palestine']['Score'].mean()
 
-    col1, col2, col3 = st.columns([1, 1, 1])
+    col1, col2, col3 = st.columns([1, 1.5, 1])
     with col1:
         st.markdown(f"<div style='background-color: rgba(0, 0, 139, 0.1); padding: 10px; border-radius: 5px; height: 150px;'>"
                     f"<p style='font-size: large; text-align: center; margin-top: 30px;'>"
