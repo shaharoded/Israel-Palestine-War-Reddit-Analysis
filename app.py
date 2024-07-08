@@ -198,8 +198,8 @@ def sentiment_histogram(df, selected_subtopic):
     fig.update_layout(
         showlegend=True,
         legend=dict(
-            x=1, 
-            y=0.5, 
+            x=0.3, 
+            y=0.7, 
             traceorder='normal',
             font=dict(
                 size=12,
