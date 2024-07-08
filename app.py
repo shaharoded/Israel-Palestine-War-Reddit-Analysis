@@ -395,39 +395,44 @@ def precompute_visualizations(df):
 
 
 def main():
-    select_box_css = """
+    text_color = '#2f2f2f'
+    select_box_css = f"""
     <style>
         /* Style the select box container */
-        .stSelectbox [data-baseweb="select"] {
+        .stSelectbox [data-baseweb="select"] {{
             border: 4px solid; /* Adjust border width */
             border-image: linear-gradient(to right, lightblue, lightgreen) 1; /* Lighter gradient border */
             border-radius: 10px; /* Rounded corners */
             background-color: #F0F8FF; /* Light background color */
-        }
+        }}
         /* Style the select box text */
-        .stSelectbox [data-baseweb="select"] .css-1hwfws3 {
+        .stSelectbox [data-baseweb="select"] .css-1hwfws3 {{
             color: #008000; /* Green text */
             font-size: 1.5rem; /* Larger font size */
             text-align: center; /* Centralized text */
-        }
+        }}
         /* Adjust the font size of the selected option */
         .stSelectbox [data-baseweb="select"] .css-1wa3eu0-placeholder, 
-        .stSelectbox [data-baseweb="select"] .css-1uccc91-singleValue {
+        .stSelectbox [data-baseweb="select"] .css-1uccc91-singleValue {{
             font-size: 1.5rem; /* Larger font size for selected option */
-            color: darkgrey; /* Text color */
+            color: {text_color}; /* Text color */
             text-align: center; /* Centralized text */
-        }
+        }}
+        /* General text color */
+        .main-text {{
+            color: {text_color};
+        }}
     </style>
     """
 
     # Inject custom CSS
     st.markdown(select_box_css, unsafe_allow_html=True)
     
-    st.markdown("<h1 style='text-align: center; color: darkgrey;'>"
+    st.markdown(f"<h1 style='text-align: center; color: {text_color};'>"
                 "<span style='color: darkblue;'>Pro-Israel</span> VS. "
                 "<span style='color: green;'>Pro-Palestine</span> Behavior on Social Media</h1>",
                 unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align: center; color: darkgrey;'>Regarding the Israel-Gaza War (2023-2024)</h2>",
+    st.markdown(f"<h2 style='text-align: center; color: {text_color};'>Regarding the Israel-Gaza War (2023-2024)</h2>",
                 unsafe_allow_html=True)
 
     df = load_and_process_data(ZIP_FILE_PATH, FILE_NAME)
@@ -456,7 +461,7 @@ def main():
                     "</div>", unsafe_allow_html=True)
 
     st.markdown(f"""
-    <div style='color: darkgrey; padding: 10px; border-radius: 5px;'>
+    <div style='color: {text_color}; padding: 10px; border-radius: 5px;'>
         <p style='font-size: small;'>
             <b>ℹ️ Note:</b><br>
             Comments are classified into Pro-Israel and Pro-Palestine groups using a trained SVM model. 
@@ -477,16 +482,16 @@ def main():
 
     col1, empty_col, col2 = st.columns([1, 0.05, 1])
     with col1:
-        st.markdown("<h3 style='text-align: center; color: darkgrey;'>Average Toxicity Score by SubTopic</h3>",
+        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Average Toxicity Score by SubTopic</h3>",
                     unsafe_allow_html=True)
         st.plotly_chart(visualizations[selected_subtopic]['radar'], use_container_width=True)
 
     with col2:
-        st.markdown("<h3 style='text-align: center; color: darkgrey;'>Sentiment Distribution by SubTopic</h3>",
+        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Sentiment Distribution by SubTopic</h3>",
                     unsafe_allow_html=True)
         st.plotly_chart(visualizations[selected_subtopic]['sentiment_histogram'], use_container_width=True)
 
-    st.markdown("<h3 style='text-align: center; color: darkgrey;'>Factual vs Emotional Speech by Affiliation</h3>",
+    st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Factual vs Emotional Speech by Affiliation</h3>",
                 unsafe_allow_html=True)
     st.plotly_chart(visualizations[selected_subtopic]['heatmap'], use_container_width=True)
 
