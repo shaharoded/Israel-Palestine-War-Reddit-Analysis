@@ -337,38 +337,38 @@ def pie_chart(data_dict):
     return fig
 
 
-def wordcloud(df, subtopic, colormap):
-    data = df.copy()
+# def wordcloud(df, subtopic, colormap):
+#     data = df.copy()
 
-    if subtopic != "Overall":
-        data = data.explode('Sub_Topics')
-        data = data[data['Sub_Topics'] == subtopic]
+#     if subtopic != "Overall":
+#         data = data.explode('Sub_Topics')
+#         data = data[data['Sub_Topics'] == subtopic]
         
-    text = ' '.join(data['Normalized_English_Comment'].dropna())
+#     text = ' '.join(data['Normalized_English_Comment'].dropna())
 
-    if not text:
-        st.error("No text data available to generate wordcloud.")
-        return None
+#     if not text:
+#         st.error("No text data available to generate wordcloud.")
+#         return None
     
-    try:
-        # Generate word cloud
-        wordcloud = WordCloud(width=1200, height=1000, background_color='white', colormap=colormap).generate(text)
+#     try:
+#         # Generate word cloud
+#         wordcloud = WordCloud(width=1200, height=1000, background_color='white', colormap=colormap).generate(text)
         
-        # Create a figure and display the word cloud
-        plt.figure(figsize=(12, 10))
-        plt.imshow(wordcloud, interpolation='bilinear')
-        plt.axis('off')
+#         # Create a figure and display the word cloud
+#         plt.figure(figsize=(12, 10))
+#         plt.imshow(wordcloud, interpolation='bilinear')
+#         plt.axis('off')
         
-        # Save the figure to a buffer
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.05, dpi=300)
-        buf.seek(0)
-        plt.close()
+#         # Save the figure to a buffer
+#         buf = io.BytesIO()
+#         plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.05, dpi=300)
+#         buf.seek(0)
+#         plt.close()
         
-        return buf
-    except Exception as e:
-        st.error(f"Error generating wordcloud: {e}")
-        return None
+#         return buf
+#     except Exception as e:
+#         st.error(f"Error generating wordcloud: {e}")
+#         return None
 
 
 @st.cache_data
@@ -418,13 +418,9 @@ def precompute_visualizations(df):
     for subtopic in subtopics:
         heatmap_fig = heatmap(df, subtopic)
         sentiment_histogram_fig = sentiment_histogram(df, subtopic)
-        pro_israel_wordcloud = wordcloud(df, subtopic, 'Blues')
-        pro_palestine_wordcloud = wordcloud(df, subtopic, 'Greens')
         visualizations['by_subtopic'][subtopic] = {
             'heatmap': heatmap_fig,
-            'sentiment_histogram': sentiment_histogram_fig,
-            'pro_israel_wordcloud': pro_israel_wordcloud,
-            'pro_palestine_wordcloud': pro_palestine_wordcloud
+            'sentiment_histogram': sentiment_histogram_fig
         }
     return visualizations
 
@@ -537,14 +533,14 @@ def main():
                 unsafe_allow_html=True)
     st.plotly_chart(visualizations['by_subtopic'][selected_subtopic]['heatmap'], use_container_width=True)
 
-    st.markdown(f"<h3 style='text-align: center; color: {text_color};'>WordClouds</h3>",
-                unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
-        st.image(Image.open(visualizations['by_subtopic'][selected_subtopic]['pro_israel_wordcloud']), use_column_width=True)
+    # st.markdown(f"<h3 style='text-align: center; color: {text_color};'>WordClouds</h3>",
+    #             unsafe_allow_html=True)
+    # col1, col2 = st.columns(2)
+    # with col1:
+    #     st.image(Image.open(visualizations['by_subtopic'][selected_subtopic]['pro_israel_wordcloud']), use_column_width=True)
 
-    with col2:
-        st.image(Image.open(visualizations['by_subtopic'][selected_subtopic]['pro_palestine_wordcloud']), use_column_width=True)
+    # with col2:
+    #     st.image(Image.open(visualizations['by_subtopic'][selected_subtopic]['pro_palestine_wordcloud']), use_column_width=True)
 
         
 if __name__ == "__main__":
