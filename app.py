@@ -196,7 +196,7 @@ def sentiment_histogram(df, selected_subtopic):
 
     # Update layout
     fig.update_layout(
-        showlegend=False,
+        showlegend=True,
         xaxis_title='Polarity Sentiment',
         yaxis_title='Percentage of Comments',
         barmode='group',  # Side-by-side bars
