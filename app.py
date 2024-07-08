@@ -124,7 +124,7 @@ def radar(data, column):
         ),
         width=400,  # Set the figure width
         height=400,  # Set the figure height
-        margin=dict(t=50, b=15, l=50, r=50)  # Adjusted margins
+        margin=dict(t=20, b=15, l=50, r=50)  # Adjusted margins
     )
 
     return fig
@@ -200,7 +200,8 @@ def sentiment_histogram(df, selected_subtopic):
         xaxis_title='Polarity Sentiment',
         yaxis_title='Percentage of Comments',
         barmode='group',  # Side-by-side bars
-        yaxis=dict(tickvals=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], ticktext=["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"])
+        yaxis=dict(tickvals=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], ticktext=["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"]),
+        margin=dict(t=20, b=15, l=50, r=50)  # Adjusted margins
     )
 
     return fig
