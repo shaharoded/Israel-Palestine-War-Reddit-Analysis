@@ -468,8 +468,8 @@ def precompute_visualizations(df):
 
 
 def main():
-    text_color = 'darkgrey'
-    dark_text_color = '#2f2f2f'
+    text_color = '#717171'
+    dark_text_color = '#454A4A'
     select_box_css = f"""
     <style>
         /* Style the select box container */
@@ -544,7 +544,7 @@ def main():
 
     st.markdown(f"""
     <div style='color: {dark_text_color}; padding: 5px; border-radius: 5px; margin-bottom: 5px;'>
-        <p style='font-size: small;'>
+        <p style='font-size: medium;'>
             <b>ℹ️ Note:</b><br>
             Comments are classified into Pro-Israel and Pro-Palestine groups using a trained SVM model. 
             A comment is considered Pro-X if its probability is 0.6 or higher and at least twice as likely as the other group. 
@@ -571,7 +571,7 @@ def main():
     # Display the dynamic text box below the select box
     st.markdown(f"""
     <div style='color: {dark_text_color}; padding: 5px; border-radius: 5px; margin-top: -10px;'>
-        <p style='font-size: small;'>{information_hover[selected_feature]}</p>
+        <p style='font-size: medium;'>{information_hover[selected_feature]}</p>
     </div>
     """, unsafe_allow_html=True)
 
