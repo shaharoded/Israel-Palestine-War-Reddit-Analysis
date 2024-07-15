@@ -3,13 +3,9 @@ import numpy as np
 import re
 import zipfile
 import warnings
-import io
 import streamlit as st
-import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from wordcloud import WordCloud
-from PIL import Image
 
 # Ignore PerformanceWarning
 warnings.filterwarnings('ignore', category=pd.errors.PerformanceWarning)
@@ -204,8 +200,8 @@ def sentiment_histogram(df, selected_subtopic):
     fig.update_layout(
         showlegend=True,
         legend=dict(
-            x=0.3, 
-            y=0.7, 
+            x=0.5, 
+            y=0.85, 
             traceorder='normal',
             font=dict(
                 size=12,
@@ -336,40 +332,6 @@ def pie_chart(data_dict):
     )
     
     return fig
-
-
-# def wordcloud(df, subtopic, colormap):
-#     data = df.copy()
-
-#     if subtopic != "Overall":
-#         data = data.explode('Sub_Topics')
-#         data = data[data['Sub_Topics'] == subtopic]
-        
-#     text = ' '.join(data['Normalized_English_Comment'].dropna())
-
-#     if not text:
-#         st.error("No text data available to generate wordcloud.")
-#         return None
-    
-#     try:
-#         # Generate word cloud
-#         wordcloud = WordCloud(width=1200, height=1000, background_color='white', colormap=colormap).generate(text)
-        
-#         # Create a figure and display the word cloud
-#         plt.figure(figsize=(12, 10))
-#         plt.imshow(wordcloud, interpolation='bilinear')
-#         plt.axis('off')
-        
-#         # Save the figure to a buffer
-#         buf = io.BytesIO()
-#         plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.05, dpi=300)
-#         buf.seek(0)
-#         plt.close()
-        
-#         return buf
-#     except Exception as e:
-#         st.error(f"Error generating wordcloud: {e}")
-#         return None
 
 
 @st.cache_data
@@ -533,15 +495,6 @@ def main():
     st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Factual vs Emotional Speech by Affiliation</h3>",
                 unsafe_allow_html=True)
     st.plotly_chart(visualizations['by_subtopic'][selected_subtopic]['heatmap'], use_container_width=True)
-
-    # st.markdown(f"<h3 style='text-align: center; color: {text_color};'>WordClouds</h3>",
-    #             unsafe_allow_html=True)
-    # col1, col2 = st.columns(2)
-    # with col1:
-    #     st.image(Image.open(visualizations['by_subtopic'][selected_subtopic]['pro_israel_wordcloud']), use_column_width=True)
-
-    # with col2:
-    #     st.image(Image.open(visualizations['by_subtopic'][selected_subtopic]['pro_palestine_wordcloud']), use_column_width=True)
 
         
 if __name__ == "__main__":
