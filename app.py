@@ -115,16 +115,19 @@ def radar(data, column):
 
     # Update layout for title and axis labels
     fig.update_layout(
-        showlegend=False,
+        showlegend=True,
+        legend=dict(
+            font=dict(size=12, color='#454A4A')  # Update legend font color
+        ),
         polar=dict(
-            radialaxis=dict(visible=True, range=[min(values_israel + values_palestine), max(values_israel + values_palestine)]),
+            radialaxis=dict(visible=True, range=[min(values_israel + values_palestine), max(values_israel + values_palestine)], tickfont=dict(size=10, color='#454A4A')),
             angularaxis=dict(
                 tickfont=dict(size=10, color='#454A4A'),
                 categoryarray=subtopics_israel + [subtopics_israel[0]],  # Set custom category order
                 categoryorder='array'
             )
         ),
-        hoverlabel=dict(font_size=14, color='#454A4A'),  # Increased font size for the hover text
+        hoverlabel=dict(font_size=14, font_color='#454A4A'),  # Increased font size and updated color for hover text
         width=300,  # Set the figure width
         height=300,  # Set the figure height
         margin=dict(t=0, b=15, l=50, r=50)  # Adjusted margins
@@ -230,7 +233,7 @@ def sentiment_histogram(data, selected_subtopic, column):
         barmode='group',  # Side-by-side bars
         yaxis=dict(tickvals=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], ticktext=["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"]),
         margin=dict(t=10, b=15, l=50, r=50),  # Adjusted margins
-        hoverlabel=dict(font_size=14, color='#454A4A'),
+        hoverlabel=dict(font_size=14, font_color='#454A4A'),
         height=300
     )
     return fig
