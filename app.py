@@ -435,9 +435,11 @@ def main():
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col1:
         st.markdown(f"<div style='background-color: rgba(0, 0, 139, 0.1); padding: 5px; border-radius: 5px; height: 150px;'>"
-                    f"<p style='font-size: large; text-align: center; margin-top: 5px;'>"
-                    f"<b>{pro_israel_score:.2f}</b><br><span style='font-size: small;'>Avg Comment Score</span><br><span style='font-size: small;'>(Likes - Dislikes)</span></p>"
-                    "</div>", unsafe_allow_html=True)
+            f"<p style='font-size: xx-large; text-align: center; margin-top: 5px;'>"
+            f"<b style='font-size: xx-large;'>{pro_israel_score:.2f}</b><br>"
+            f"<span style='font-size: medium;'>Avg Comment Score</span><br>"
+            f"<span style='font-size: medium;'>(Likes - Dislikes)</span></p>"
+            "</div>", unsafe_allow_html=True)
 
     with col2:
         pie_fig = pie_chart(data_dict = {
@@ -448,9 +450,11 @@ def main():
 
     with col3:
         st.markdown(f"<div style='background-color: rgba(0, 128, 0, 0.1); padding: 5px; border-radius: 5px; height: 150px;'>"
-                    f"<p style='font-size: large; text-align: center; margin-top: 5px;'>"
-                    f"<b>{pro_palestine_score:.2f}</b><br><span style='font-size: small;'>Avg Comment Score</span><br><span style='font-size: small;'>(Likes - Dislikes)</span></p>"
-                    "</div>", unsafe_allow_html=True)
+            f"<p style='font-size: xx-large; text-align: center; margin-top: 5px;'>"
+            f"<b style='font-size: xx-large;'>{pro_israel_score:.2f}</b><br>"
+            f"<span style='font-size: medium;'>Avg Comment Score</span><br>"
+            f"<span style='font-size: medium;'>(Likes - Dislikes)</span></p>"
+            "</div>", unsafe_allow_html=True)
 
     st.markdown(f"""
     <div style='color: {dark_text_color}; padding: 10px; border-radius: 5px;'>
