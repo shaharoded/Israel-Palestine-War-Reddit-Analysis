@@ -468,7 +468,7 @@ def precompute_visualizations(df):
 
 
 def main():
-    text_color = '#826363'
+    text_color = '#8E6C1E'
     small_text_color = '#454A4A'
     select_box_css = f"""
     <style>
