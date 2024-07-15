@@ -597,7 +597,6 @@ def main():
 
     # Inject custom CSS for select boxes and information icon
     st.markdown(select_box_css, unsafe_allow_html=True)
-    st.markdown(information_icon_css, unsafe_allow_html=True)
 
     # Create the label with the information icon for Select Feature
     label_with_icon = f"""
@@ -614,6 +613,7 @@ def main():
     selected_subtopic = st.selectbox('Select Sub-Topic', subtopics)
     
     # Create the select box for Feature
+    st.markdown(information_icon_css, unsafe_allow_html=True)
     selected_feature = st.selectbox('', list(information_hover.keys()))
 
     # Update the tooltip text based on the selected feature using JavaScript
