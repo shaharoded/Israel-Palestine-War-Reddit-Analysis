@@ -201,7 +201,7 @@ def sentiment_histogram(df, selected_subtopic):
         showlegend=True,
         legend=dict(
             x=0.5, 
-            y=0.85, 
+            y=1, 
             traceorder='normal',
             font=dict(
                 size=12,
@@ -436,7 +436,7 @@ def main():
     with col1:
         st.markdown(f"<div style='background-color: rgba(0, 0, 139, 0.1); padding: 10px; border-radius: 5px; height: 150px;'>"
                     f"<p style='font-size: large; text-align: center; margin-top: 30px;'>"
-                    f"<b>{pro_israel_score:.2f}</b><br><span style='font-size: small;'>Avg Comment Score (Likes - Dislikes)</span></p>"
+                    f"<b>{pro_israel_score:.2f}</b><br><span style='font-size: small;'>Avg Comment Score</span><br><span style='font-size: small;'>(Likes - Dislikes)</span></p>"
                     "</div>", unsafe_allow_html=True)
 
     with col2:
@@ -449,7 +449,7 @@ def main():
     with col3:
         st.markdown(f"<div style='background-color: rgba(0, 128, 0, 0.1); padding: 10px; border-radius: 5px; height: 150px;'>"
                     f"<p style='font-size: large; text-align: center; margin-top: 30px;'>"
-                    f"<b>{pro_palestine_score:.2f}</b><br><span style='font-size: small;'>Avg Comment Score (Likes - Dislikes)</span></p>"
+                    f"<b>{pro_palestine_score:.2f}</b><br><span style='font-size: small;'>Avg Comment Score</span><br><span style='font-size: small;'>(Likes - Dislikes)</span></p>"
                     "</div>", unsafe_allow_html=True)
 
     st.markdown(f"""
