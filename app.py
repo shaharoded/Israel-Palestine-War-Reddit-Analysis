@@ -133,7 +133,7 @@ def radar(data, column):
     return fig
 
 
-def sentiment_histogram(df, selected_subtopic):
+def sentiment_histogram(df, selected_subtopic, column):
     data = df.copy()
 
     if selected_subtopic != "Overall":
@@ -151,8 +151,8 @@ def sentiment_histogram(df, selected_subtopic):
     bins = np.arange(-1, 1.2, 0.2)  # Bins from -1 to 1 with step 0.2
 
     # Get data for the selected subtopic
-    pro_israel_data = pro_israel_df['Polarity_Sentiment']
-    pro_palestine_data = pro_palestine_df['Polarity_Sentiment']
+    pro_israel_data = pro_israel_df[column]
+    pro_palestine_data = pro_palestine_df[column]
 
     # Calculate the total number of records for each group and topic
     total_pro_israel = len(pro_israel_data)
@@ -170,8 +170,8 @@ def sentiment_histogram(df, selected_subtopic):
     bin_centers = (bins[:-1] + bins[1:]) / 2
 
     # Create hover text
-    hover_text_pro_israel = [f"Sentiment: {bins[i]:.1f} to {bins[i+1]:.1f},\n{perc_pro_israel[i]:.1f}% of the group's comments" for i in range(len(perc_pro_israel))]
-    hover_text_pro_palestine = [f"Sentiment: {bins[i]:.1f} to {bins[i+1]:.1f},\n{perc_pro_palestine[i]:.1f}% of the group's comments" for i in range(len(perc_pro_palestine))]
+    hover_text_pro_israel = [f"Scores in Bin: {bins[i]:.1f} to {bins[i+1]:.1f},\n{perc_pro_israel[i]:.1f}% of the group's comments" for i in range(len(perc_pro_israel))]
+    hover_text_pro_palestine = [f"Scores in Bin: {bins[i]:.1f} to {bins[i+1]:.1f},\n{perc_pro_palestine[i]:.1f}% of the group's comments" for i in range(len(perc_pro_palestine))]
 
     # Create traces
     trace_israel = go.Bar(
@@ -210,7 +210,7 @@ def sentiment_histogram(df, selected_subtopic):
             ),
             bgcolor='rgba(255, 255, 255, 0.5)'
         ),
-        xaxis_title='Polarity Sentiment',
+        xaxis_title='Feature Distribution',
         yaxis_title='Percentage of Comments',
         barmode='group',  # Side-by-side bars
         yaxis=dict(tickvals=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], ticktext=["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"]),
@@ -218,7 +218,6 @@ def sentiment_histogram(df, selected_subtopic):
         hoverlabel=dict(font_size=14),
         height=300
     )
-
     return fig
 
 
@@ -378,17 +377,20 @@ def precompute_visualizations(df):
         'Comment Score': 'Score',
         'Controversiality Ratio': 'Controversiality'
     } # Built like {feature: column name}
-    visualizations = {'by_subtopic': {}, 'by_feature': {}}
+    visualizations = {} # Create viz for every combination of subtopic adn feature {'subtopic': {'feature': {'heatmap', 'sentiment_histogram', 'radar'}}} 
+    radars = {}
     for feature in features_mapper:
         radar_fig = radar(df, features_mapper[feature])
-        visualizations['by_feature'][feature] = radar_fig
+        radars[feature] = radar_fig
     for subtopic in subtopics:
         heatmap_fig = heatmap(df, subtopic)
-        sentiment_histogram_fig = sentiment_histogram(df, subtopic)
-        visualizations['by_subtopic'][subtopic] = {
-            'heatmap': heatmap_fig,
-            'sentiment_histogram': sentiment_histogram_fig
-        }
+        for feature in features_mapper:
+            sentiment_histogram_fig = sentiment_histogram(df, subtopic, feature)
+            visualizations[subtopic][feature] = {
+                'heatmap': heatmap_fig,
+                'sentiment_histogram': sentiment_histogram_fig,
+                'radar': radars[feature]
+            }
     return visualizations
 
 
@@ -493,16 +495,16 @@ def main():
     with col1:
         st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Average {selected_feature} by SubTopic</h3>",
                     unsafe_allow_html=True)
-        st.plotly_chart(visualizations['by_feature'][selected_feature], use_container_width=True)
+        st.plotly_chart(visualizations[selected_subtopic][selected_feature], use_container_width=True)
 
     with col2:
-        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Sentiment Distribution by SubTopic</h3>",
+        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>{selected_feature} by SubTopic</h3>",
                     unsafe_allow_html=True)
-        st.plotly_chart(visualizations['by_subtopic'][selected_subtopic]['sentiment_histogram'], use_container_width=True)
+        st.plotly_chart(visualizations[selected_subtopic][selected_feature]['sentiment_histogram'], use_container_width=True)
 
     st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Factual vs Emotional Speech by Affiliation</h3>",
                 unsafe_allow_html=True)
-    st.plotly_chart(visualizations['by_subtopic'][selected_subtopic]['heatmap'], use_container_width=True)
+    st.plotly_chart(visualizations[selected_subtopic][selected_feature]['heatmap'], use_container_width=True)
 
         
 if __name__ == "__main__":
