@@ -49,6 +49,14 @@ def balanced_sample(df, column):
     return balanced_df
 
 def radar(data, column):
+    column_to_name = {
+        'Polarity_Sentiment' : 'Polarity Sentiment',
+        'Toxicity_Score' : 'Toxicity Score',
+        'Belief_Similarity' : 'Belief Speech',
+        'Fact_Similarity' : 'Factual Speech',
+        'Controversiality' : 'Controversiality'
+    } # Built like {feature: column name}
+    
     # Preprocess the data
     data = data.copy()
     data = data[data['Sub_Topics'].apply(bool)]
@@ -100,7 +108,7 @@ def radar(data, column):
         fill='toself',
         name='Pro-Israel',
         line=dict(color='rgba(0, 0, 255, 0.6)'),
-        hovertemplate=f'Pro-Israel<br>Avg_{column}: %{{r}}<br>SubTopic: %{{theta}}<extra></extra>'
+        hovertemplate=f'Pro-Israel<br>Avg {column_to_name[column]}: %{{r}}<br>Sub Topic: %{{theta}}<extra></extra>'
     ))
 
     # Add the radar chart for pro-Palestine
@@ -110,7 +118,7 @@ def radar(data, column):
         fill='toself',
         name='Pro-Palestine',
         line=dict(color='rgba(0, 128, 0, 0.6)'),
-        hovertemplate=f'Pro-Palestine<br>Avg_{column}: %{{r}}<br>SubTopic: %{{theta}}<extra></extra>'
+        hovertemplate=f'Pro-Palestine<br>Avg {column_to_name[column]}: %{{r}}<br>Sub Topic: %{{theta}}<extra></extra>'
     ))
 
     # Update layout for title and axis labels
@@ -490,7 +498,39 @@ def main():
         }}
     </style>
     """
-    
+    # Custom CSS for the information icon and tooltip
+    information_icon_css = """
+    <style>
+    .tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    margin-left: 10px;
+    }
+
+    .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%; /* Position the tooltip above the text */
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    }
+
+    .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+    }
+    </style>
+    """
     st.markdown(f"<h1 style='text-align: center; color: {text_color};'>"
                 "<span style='color: darkblue;'>Pro-Israel</span> VS. "
                 "<span style='color: green;'>Pro-Palestine</span> Behavior on Social Media</h1>",
@@ -549,16 +589,36 @@ def main():
     subtopics = ['Overall'] + df['Sub_Topics'].explode().unique().tolist()
     selected_subtopic = st.selectbox('Select Subtopic', subtopics)
     
-    # create SelectBox for Feature
+    # create SelectBox for Feature + information mark
     # Inject custom CSS
-    st.markdown(select_box_css, unsafe_allow_html=True)
-    features = ['Polarity Sentiment', 'Toxicity Score', 'Belief Speech',
-        'Factual Speech', 'Controversiality']
-    selected_feature = st.selectbox('Select Feature', features)
+    st.markdown(information_icon_css, unsafe_allow_html=True)
+    information_hover = {
+        'Polarity Sentiment': 'A',
+        'Toxicity Score': 'B',
+        'Belief Speech':'C',
+        'Factual Speech':'D',
+        'Controversiality': 'E'        
+    }
+    # Allocate more space to the column containing the select box
+    col1, col2 = st.columns([10, 1])
+
+    with col1:
+        selected_feature = st.selectbox('Select Feature', list(information_hover.keys()))
+
+    with col2:
+        st.markdown(f"""
+        <div class="tooltip">ℹ️
+            <span class="tooltiptext">{information_hover[selected_feature]}</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Display the selected feature and its description
+    st.write(f'Selected Feature: {selected_feature}')
+    st.write(f'Description: {information_hover[selected_feature]}')
 
     col1, empty_col, col2 = st.columns([1, 0.05, 1])
     with col1:
-        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Average {selected_feature} by SubTopic</h3>",
+        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Average {selected_feature} by Sub Topic</h3>",
                     unsafe_allow_html=True)
         st.plotly_chart(visualizations[selected_subtopic][selected_feature]['radar'], use_container_width=True)
 
