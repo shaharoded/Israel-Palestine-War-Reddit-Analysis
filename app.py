@@ -119,11 +119,12 @@ def radar(data, column):
         polar=dict(
             radialaxis=dict(visible=True, range=[min(values_israel + values_palestine), max(values_israel + values_palestine)]),
             angularaxis=dict(
-                tickfont=dict(size=10),
+                tickfont=dict(size=12),
                 categoryarray=subtopics_israel + [subtopics_israel[0]],  # Set custom category order
                 categoryorder='array'
             )
         ),
+        hoverlabel=dict(font_size=14),  # Increased font size for the hover text
         width=300,  # Set the figure width
         height=300,  # Set the figure height
         margin=dict(t=0, b=15, l=50, r=50)  # Adjusted margins
