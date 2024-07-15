@@ -509,38 +509,43 @@ def main():
     information_icon_css = """
     <style>
     .tooltip {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-    margin-left: 10px;
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        margin-left: 5px;
     }
 
     .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 200px;
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 5px;
-    padding: 5px;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%; /* Position the tooltip above the text */
-    left: 50%;
-    margin-left: -100px;
-    opacity: 0;
-    transition: opacity 0.3s;
+        visibility: hidden;
+        width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px;
+        padding: 5px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%; /* Position the tooltip above the text */
+        left: 50%;
+        margin-left: -100px;
+        opacity: 0;
+        transition: opacity 0.3s;
     }
 
     .tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
+        visibility: visible;
+        opacity: 1;
     }
 
     .label-container {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px; /* Reduce space below the label container */
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px; /* Reduce space below the label container */
+    }
+
+    label {
+        font-size: 1rem; /* Match the font size of 'Select Sub-Topic' */
+        margin-bottom: 0;
     }
     </style>
     """
