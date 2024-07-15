@@ -513,6 +513,7 @@ def main():
         display: inline-block;
         cursor: pointer;
         margin-left: 5px;
+        margin-top: -20px; /* Adjust this value to reduce space */
     }
 
     .tooltip .tooltiptext {
