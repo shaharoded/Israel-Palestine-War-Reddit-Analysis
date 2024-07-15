@@ -148,12 +148,18 @@ def sentiment_histogram(df, selected_subtopic, column):
     fig = make_subplots(rows=1, cols=1)
 
     # Define bins for scores. 10 bins in the viz
-    # get th 
+    # get the boundries per score 
     _min = int(data[column].min())
     _max = int(data[column].max())
-    bin_size = (_max - _min)/10
-    _max = _max + bin_size
-    bins = np.arange(_min, _max, bin_size)  # Bins from -1 to 1 with step 0.2
+    # Check if _min is equal to _max to avoid zero division
+    if _min == _max:
+        # Handle the case where all values are the same
+        bin_size = 1  # Arbitrary bin size, since all values are the same
+        bins = np.arange(_min, _max + bin_size, bin_size)
+    else:
+        bin_size = (_max - _min) / 10
+        _max = _max + bin_size
+        bins = np.arange(_min, _max, bin_size)  # Bins from int(min) to int(max) with step bin_size
 
     # Get data for the selected subtopic
     pro_israel_data = pro_israel_df[column]
@@ -185,7 +191,7 @@ def sentiment_histogram(df, selected_subtopic, column):
         name='Pro-Israel',
         marker_color='rgba(0, 0, 255, 0.6)',
         opacity=0.7,
-        width=0.1,
+        width=bin_size/2,
         hovertext=hover_text_pro_israel,
         hoverinfo='text'
     )
@@ -195,7 +201,7 @@ def sentiment_histogram(df, selected_subtopic, column):
         name='Pro-Palestine',
         marker_color='rgba(0, 128, 0, 0.6)',
         opacity=0.7,
-        width=0.1,
+        width=bin_size/2,
         hovertext=hover_text_pro_palestine,
         hoverinfo='text'
     )
