@@ -119,12 +119,12 @@ def radar(data, column):
         polar=dict(
             radialaxis=dict(visible=True, range=[min(values_israel + values_palestine), max(values_israel + values_palestine)]),
             angularaxis=dict(
-                tickfont=dict(size=10),
+                tickfont=dict(size=10, color='#454A4A'),
                 categoryarray=subtopics_israel + [subtopics_israel[0]],  # Set custom category order
                 categoryorder='array'
             )
         ),
-        hoverlabel=dict(font_size=14),  # Increased font size for the hover text
+        hoverlabel=dict(font_size=14, color='#454A4A'),  # Increased font size for the hover text
         width=300,  # Set the figure width
         height=300,  # Set the figure height
         margin=dict(t=0, b=15, l=50, r=50)  # Adjusted margins
@@ -221,7 +221,7 @@ def sentiment_histogram(data, selected_subtopic, column):
             traceorder='normal',
             font=dict(
                 size=12,
-                color='#2f2f2f'
+                color='#454A4A'
             ),
             bgcolor='rgba(255, 255, 255, 0.5)'
         ),
@@ -230,7 +230,7 @@ def sentiment_histogram(data, selected_subtopic, column):
         barmode='group',  # Side-by-side bars
         yaxis=dict(tickvals=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], ticktext=["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"]),
         margin=dict(t=10, b=15, l=50, r=50),  # Adjusted margins
-        hoverlabel=dict(font_size=14),
+        hoverlabel=dict(font_size=14, color='#454A4A'),
         height=300
     )
     return fig
@@ -297,13 +297,13 @@ def heatmap(df, subtopic):
         margin=dict(l=0, r=0, t=40, b=80),
         plot_bgcolor='rgba(0,0,0,0)',  # Set plot background to be transparent
         paper_bgcolor='rgba(0,0,0,0)',  # Set paper background to be transparent
-        font=dict(color='black'),
+        font=dict(color='#454A4A'),
         hoverlabel=dict(font_size=14)
     )
 
     # Ensure the grid is visible and fits properly
-    fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False, dtick=0.2)
-    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False, dtick=0.2)
+    fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2)
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2)
 
     return fig
 
@@ -338,7 +338,7 @@ def pie_chart(data_dict):
                 text="<b>Classification Distribution</b>",
                 x=0.5,
                 y=1.25,
-                font=dict(size=14, color="darkgrey"),
+                font=dict(size=14, color="#454A4A"),
                 showarrow=False,
                 xanchor='center'
             )
