@@ -135,6 +135,9 @@ def radar(data, column):
 
 def sentiment_histogram(df, selected_subtopic, column):
     data = df.copy()
+    if selected_subtopic != "Overall":
+        data = data.explode('Sub_Topics')
+        data = data[data['Sub_Topics'] == selected_subtopic]
     
     # Define bins for scores. 10 bins in the viz
     # get the boundries per score 
@@ -147,11 +150,6 @@ def sentiment_histogram(df, selected_subtopic, column):
         bin_size = (_max - _min) / 10
         _max = _max + bin_size
         bins = np.arange(_min, _max, bin_size)  # Bins from int(min) to int(max) with step bin_size
-
-
-    if selected_subtopic != "Overall":
-        data = data.explode('Sub_Topics')
-        data = data[data['Sub_Topics'] == selected_subtopic]
 
     # Separate data for Pro-Israel and Pro-Palestine
     pro_israel_df = data[data['Affiliation'] == 'Pro-Israel']
