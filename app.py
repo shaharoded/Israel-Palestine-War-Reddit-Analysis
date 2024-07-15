@@ -496,6 +496,12 @@ def main():
         .main-text {{
             color: {text_color};
         }}
+        /* Align the select box label with the icon */
+        .label-container {{
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem; /* Ensure the font size matches the select box */
+        }}
     </style>
     """
     information_hover = {
@@ -535,11 +541,6 @@ def main():
     .tooltip:hover .tooltiptext {
     visibility: visible;
     opacity: 1;
-    }
-
-    .label-container {
-    display: flex;
-    align-items: center;
     }
     </style>
     """
@@ -599,22 +600,25 @@ def main():
     st.markdown(select_box_css, unsafe_allow_html=True)
     st.markdown(information_icon_css, unsafe_allow_html=True)
 
+    # Reserve space for the select box
+    selectbox_placeholder = st.empty()
+
     # Create the label with the information icon for Select Feature
-    label_with_icon = f"""
+    st.markdown(f"""
     <div class="label-container">
         <label for="feature-select">Select Feature</label>
         <div class="tooltip">ℹ️
             <span class="tooltiptext" id="tooltip-text">{information_hover[list(information_hover.keys())[0]]}</span>
         </div>
     </div>
-    """
+    """, unsafe_allow_html=True)
 
     # Create the select box for Sub-Topic
     subtopics = ['Overall'] + df['Sub_Topics'].explode().unique().tolist()
     selected_subtopic = st.selectbox('Select Sub-Topic', subtopics)
-    
-    # Create the select box for Feature
-    selected_feature = st.selectbox(label_with_icon, list(information_hover.keys()))
+
+    # Create the select box for Feature in the reserved placeholder
+    selected_feature = selectbox_placeholder.selectbox('', list(information_hover.keys()))
 
     # Update the tooltip text based on the selected feature using JavaScript
     st.markdown(f"""
