@@ -435,7 +435,7 @@ def main():
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col1:
         st.markdown(f"<div style='background-color: rgba(0, 0, 139, 0.1); padding: 5px; border-radius: 5px; height: 150px;'>"
-            f"<p style='font-size: 18px; text-align: center; margin-top: 5px; line-height: 1.2;'>"
+            f"<p style='font-size: 18px; text-align: center; margin-top: 10px; line-height: 1.2;'>"
             f"<b style='font-size: 22px;'>{pro_israel_score:.2f}</b><br>"
             f"<span style='font-size: 16px;'>Avg Comment Score</span><br>"
             f"<span style='font-size: 16px;'>(Likes - Dislikes)</span></p>"
@@ -450,7 +450,7 @@ def main():
 
     with col3:
         st.markdown(f"<div style='background-color: rgba(0, 128, 0, 0.1); padding: 5px; border-radius: 5px; height: 150px;'>"
-            f"<p style='font-size: 18px; text-align: center; margin-top: 5px; line-height: 1.2;'>"
+            f"<p style='font-size: 18px; text-align: center; margin-top: 10px; line-height: 1.2;'>"
             f"<b style='font-size: 22px;'>{pro_israel_score:.2f}</b><br>"
             f"<span style='font-size: 16px;'>Avg Comment Score</span><br>"
             f"<span style='font-size: 16px;'>(Likes - Dislikes)</span></p>"
