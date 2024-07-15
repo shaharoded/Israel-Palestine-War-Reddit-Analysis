@@ -529,6 +529,11 @@ def main():
     visibility: visible;
     opacity: 1;
     }
+
+    .label-container {
+    display: flex;
+    align-items: center;
+    }
     </style>
     """
     st.markdown(f"<h1 style='text-align: center; color: {text_color};'>"
@@ -592,6 +597,17 @@ def main():
     # create SelectBox for Feature + information mark
     # Inject custom CSS
     st.markdown(information_icon_css, unsafe_allow_html=True)
+
+    # Create the label with the information icon
+    st.markdown(f"""
+    <div class="label-container">
+    <label for="feature-select">Select Feature</label>
+    <div class="tooltip">ℹ️
+        <span class="tooltiptext">{information_hover[list(information_hover.keys())[0]]}</span>
+    </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     information_hover = {
         'Polarity Sentiment': 'A',
         'Toxicity Score': 'B',
@@ -600,21 +616,15 @@ def main():
         'Controversiality': 'E'        
     }
     # Allocate more space to the column containing the select box
-    col1, col2 = st.columns([10, 1])
+    # Create the select box
+    selected_feature = st.selectbox('Select Feature', list(information_hover.keys()))
 
-    with col1:
-        selected_feature = st.selectbox('Select Feature', list(information_hover.keys()))
-
-    with col2:
-        st.markdown(f"""
-        <div class="tooltip">ℹ️
-            <span class="tooltiptext">{information_hover[selected_feature]}</span>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # Display the selected feature and its description
-    st.write(f'Selected Feature: {selected_feature}')
-    st.write(f'Description: {information_hover[selected_feature]}')
+    # Update the tooltip text based on the selected feature
+    st.markdown(f"""
+    <script>
+    document.querySelector('.tooltip .tooltiptext').innerText = '{information_hover[selected_feature]}';
+    </script>
+    """, unsafe_allow_html=True)
 
     col1, empty_col, col2 = st.columns([1, 0.05, 1])
     with col1:
