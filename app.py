@@ -617,7 +617,7 @@ def main():
     
     # Allocate more space to the column containing the select box
     # Create the select box
-    selected_feature = st.selectbox(list(information_hover.keys()))
+    selected_feature = st.selectbox('', list(information_hover.keys()))
 
     # Update the tooltip text based on the selected feature using JavaScript
     st.markdown(f"""
