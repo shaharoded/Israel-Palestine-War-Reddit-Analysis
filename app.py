@@ -115,7 +115,7 @@ def radar(data, column):
 
     # Update layout for title and axis labels
     fig.update_layout(
-        showlegend=True,
+        showlegend=False,
         legend=dict(
             font=dict(size=12, color='#454A4A')  # Update legend font color
         ),
@@ -215,7 +215,6 @@ def sentiment_histogram(data, selected_subtopic, column):
 
     fig.add_traces([trace_israel, trace_palestine])
 
-    # Update layout
     fig.update_layout(
         showlegend=True,
         legend=dict(
@@ -228,10 +227,19 @@ def sentiment_histogram(data, selected_subtopic, column):
             ),
             bgcolor='rgba(255, 255, 255, 0.5)'
         ),
-        xaxis_title='Feature Distribution',
-        yaxis_title='Percentage of Comments',
+        xaxis=dict(
+            title='Feature Distribution',
+            tickfont=dict(color='#454A4A'),  # Change x-axis text color
+            titlefont=dict(color='#454A4A')  # Change x-axis title color
+        ),
+        yaxis=dict(
+            title='Percentage of Comments',
+            tickfont=dict(color='#454A4A'),  # Change y-axis text color
+            titlefont=dict(color='#454A4A'),  # Change y-axis title color
+            tickvals=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            ticktext=["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"]
+        ),
         barmode='group',  # Side-by-side bars
-        yaxis=dict(tickvals=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], ticktext=["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"]),
         margin=dict(t=10, b=15, l=50, r=50),  # Adjusted margins
         hoverlabel=dict(font_size=14, font_color='#454A4A'),
         height=300
@@ -292,10 +300,10 @@ def heatmap(df, subtopic):
 
     # Update layout
     fig.update_layout(
-        xaxis=dict(range=[0, 1], title='Fact Speaking Score', showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False, dtick=0.2),
-        yaxis=dict(range=[0, 1], title='Belief Speaking Score', showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False, dtick=0.2),
-        xaxis2=dict(range=[0, 1], title='Fact Speaking Score', showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False, dtick=0.2),
-        yaxis2=dict(range=[0, 1], title='Belief Speaking Score', showgrid=True, gridwidth=1, gridcolor='lightgrey', zeroline=False, dtick=0.2),
+        xaxis=dict(range=[0, 1], title='Fact Speaking Score', showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2),
+        yaxis=dict(range=[0, 1], title='Belief Speaking Score', showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2),
+        xaxis2=dict(range=[0, 1], title='Fact Speaking Score', showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2),
+        yaxis2=dict(range=[0, 1], title='Belief Speaking Score', showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2),
         showlegend=True,
         margin=dict(l=0, r=0, t=40, b=80),
         plot_bgcolor='rgba(0,0,0,0)',  # Set plot background to be transparent
@@ -351,7 +359,6 @@ def pie_chart(data_dict):
         height=150,  # Adjust height
         margin=dict(l=10, r=10, t=30, b=10)  # Adjust margins
     )
-    
     return fig
 
 
