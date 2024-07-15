@@ -598,11 +598,16 @@ def main():
 
     # Inject custom CSS for select boxes and information icon
     st.markdown(select_box_css, unsafe_allow_html=True)
-    st.markdown(information_icon_css, unsafe_allow_html=True)
 
     # Create the select box for Sub-Topic
     subtopics = ['Overall'] + df['Sub_Topics'].explode().unique().tolist()
     selected_subtopic = st.selectbox('Select Sub-Topic', subtopics)
+
+    # Inject custom CSS
+    st.markdown(information_icon_css, unsafe_allow_html=True)
+
+    # Default selected feature
+    selected_feature = list(information_hover.keys())[0]
 
     # Create the label with the information icon for Select Feature
     label_with_icon = f"""
