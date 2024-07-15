@@ -147,8 +147,13 @@ def sentiment_histogram(df, selected_subtopic, column):
     # Create a figure
     fig = make_subplots(rows=1, cols=1)
 
-    # Define bins for sentiment scores
-    bins = np.arange(-1, 1.2, 0.2)  # Bins from -1 to 1 with step 0.2
+    # Define bins for scores. 10 bins in the viz
+    # get th 
+    _min = int(data[column].min())
+    _max = int(data[column].max())
+    bin_size = (_max - _min)/10
+    _max = _max + bin_size
+    bins = np.arange(_min, _max, bin_size)  # Bins from -1 to 1 with step 0.2
 
     # Get data for the selected subtopic
     pro_israel_data = pro_israel_df[column]
@@ -385,7 +390,7 @@ def precompute_visualizations(df):
     for subtopic in subtopics:
         heatmap_fig = heatmap(df, subtopic)
         for feature in features_mapper:
-            sentiment_histogram_fig = sentiment_histogram(df, subtopic, feature)
+            sentiment_histogram_fig = sentiment_histogram(df, subtopic, features_mapper[feature])
             visualizations[subtopic][feature] = {
                 'heatmap': heatmap_fig,
                 'sentiment_histogram': sentiment_histogram_fig,
