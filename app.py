@@ -610,19 +610,19 @@ def main():
     <div class="label-container">
     <label for="feature-select">Select Feature</label>
     <div class="tooltip">ℹ️
-        <span class="tooltiptext">{information_hover[list(information_hover.keys())[0]]}</span>
+        <span class="tooltiptext" id="tooltip-text">{information_hover[list(information_hover.keys())[0]]}</span>
     </div>
     </div>
     """, unsafe_allow_html=True)
     
     # Allocate more space to the column containing the select box
     # Create the select box
-    selected_feature = st.selectbox('Select Feature', list(information_hover.keys()))
+    selected_feature = st.selectbox(list(information_hover.keys()))
 
-    # Update the tooltip text based on the selected feature
+    # Update the tooltip text based on the selected feature using JavaScript
     st.markdown(f"""
     <script>
-    document.querySelector('.tooltip .tooltiptext').innerText = '{information_hover[selected_feature]}';
+    document.getElementById('tooltip-text').innerText = '{information_hover[selected_feature]}';
     </script>
     """, unsafe_allow_html=True)
 
