@@ -300,22 +300,61 @@ def heatmap(df, subtopic):
 
     # Update layout
     fig.update_layout(
-        xaxis=dict(range=[0, 1], title='Fact Speaking Score', showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2),
-        yaxis=dict(range=[0, 1], title='Belief Speaking Score', showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2),
-        xaxis2=dict(range=[0, 1], title='Fact Speaking Score', showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2),
-        yaxis2=dict(range=[0, 1], title='Belief Speaking Score', showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2),
+        xaxis=dict(
+            range=[0, 1],
+            title='Fact Speaking Score',
+            titlefont=dict(color='#454A4A'),  # Change x-axis title color
+            tickfont=dict(color='#454A4A'),  # Change x-axis tick label color
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='#454A4A',
+            zeroline=False,
+            dtick=0.2
+        ),
+        yaxis=dict(
+            range=[0, 1],
+            title='Belief Speaking Score',
+            titlefont=dict(color='#454A4A'),  # Change y-axis title color
+            tickfont=dict(color='#454A4A'),  # Change y-axis tick label color
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='#454A4A',
+            zeroline=False,
+            dtick=0.2
+        ),
+        xaxis2=dict(
+            range=[0, 1],
+            title='Fact Speaking Score',
+            titlefont=dict(color='#454A4A'),  # Change x-axis2 title color
+            tickfont=dict(color='#454A4A'),  # Change x-axis2 tick label color
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='#454A4A',
+            zeroline=False,
+            dtick=0.2
+        ),
+        yaxis2=dict(
+            range=[0, 1],
+            title='Belief Speaking Score',
+            titlefont=dict(color='#454A4A'),  # Change y-axis2 title color
+            tickfont=dict(color='#454A4A'),  # Change y-axis2 tick label color
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='#454A4A',
+            zeroline=False,
+            dtick=0.2
+        ),
         showlegend=True,
         margin=dict(l=0, r=0, t=40, b=80),
         plot_bgcolor='rgba(0,0,0,0)',  # Set plot background to be transparent
         paper_bgcolor='rgba(0,0,0,0)',  # Set paper background to be transparent
         font=dict(color='#454A4A'),
-        hoverlabel=dict(font_size=14)
+        hoverlabel=dict(font_size=14, font_color='#454A4A')  # Set hover label font size and color
     )
 
     # Ensure the grid is visible and fits properly
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2)
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2)
-
     return fig
 
 
@@ -344,7 +383,7 @@ def pie_chart(data_dict):
     fig = go.Figure(data=[go.Pie(labels=labels, values=sizes, hole=0.70, hoverinfo='label+text', text=hover_text, textinfo='none', marker=dict(colors=colors))])
 
     fig.update_layout(
-         annotations=[
+        annotations=[
             dict(
                 text="<b>Classification Distribution</b>",
                 x=0.5,
@@ -355,7 +394,7 @@ def pie_chart(data_dict):
             )
         ],
         showlegend=False,  # Remove legend
-        hoverlabel=dict(font_size=14),
+        hoverlabel=dict(font_size=14, font_color='#454A4A'),  # Set hover label font size and color
         height=150,  # Adjust height
         margin=dict(l=10, r=10, t=30, b=10)  # Adjust margins
     )
