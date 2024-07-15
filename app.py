@@ -153,7 +153,7 @@ def sentiment_histogram(df, selected_subtopic, column):
     _max = int(data[column].max())
     # Check if _min is equal to _max to avoid zero division
     if _min == _max:
-        raise ValueError(f'Min and Max Values in column {column} are the same = {_max}')
+        raise ValueError(f'Min and Max Values in column {column} are the same = {_max}. Check data.')
     else:
         bin_size = (_max - _min) / 10
         _max = _max + bin_size
@@ -379,12 +379,11 @@ def precompute_visualizations(df):
     '''
     subtopics = ['Overall'] + df['Sub_Topics'].explode().unique().tolist()
     features_mapper = {
-        'Toxicity Score': 'Toxicity_Score',
         'Polarity Sentiment': 'Polarity_Sentiment',
+        'Toxicity Score': 'Toxicity_Score',
         'Belief Speech': 'Belief_Similarity',
         'Factual Speech': 'Fact_Similarity',
-        'Comment Score': 'Score',
-        'Controversiality Ratio': 'Controversiality'
+        'Controversiality': 'Controversiality'
     } # Built like {feature: column name}
     visualizations = {} # Create viz for every combination of subtopic adn feature {'subtopic': {'feature': {'heatmap', 'sentiment_histogram', 'radar'}}} 
     radars = {}
@@ -498,8 +497,8 @@ def main():
     # create SelectBox for Feature
     # Inject custom CSS
     st.markdown(select_box_css, unsafe_allow_html=True)
-    features = ['Toxicity Score', 'Polarity Sentiment', 'Belief Speech',
-        'Factual Speech', 'Controversiality Ratio']
+    features = ['Polarity Sentiment', 'Toxicity Score', 'Belief Speech',
+        'Factual Speech', 'Controversiality']
     selected_feature = st.selectbox('Select Feature', features)
 
     col1, empty_col, col2 = st.columns([1, 0.05, 1])
