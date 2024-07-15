@@ -455,7 +455,7 @@ def main():
     with col3:
         st.markdown(f"<div style='background-color: rgba(0, 128, 0, 0.1); padding: 5px; border-radius: 5px; height: 150px;'>"
             f"<p style='font-size: 18px; text-align: center; margin-top: 10px; line-height: 1.2;'>"
-            f"<b style='font-size: 22px;'>{pro_israel_score:.2f}</b><br><br>"
+            f"<b style='font-size: 22px;'>{pro_palestine_score:.2f}</b><br><br>"
             f"<span style='font-size: 16px;'>Avg Comment Score</span><br>"
             f"<span style='font-size: 16px;'>(Likes - Dislikes)</span></p>"
             "</div>", unsafe_allow_html=True)
