@@ -144,8 +144,8 @@ def sentiment_histogram(data, selected_subtopic, column):
     
     # Define bins for scores. 10 bins in the viz
     # get the boundries per score 
-    _min = int(data[column].min())
-    _max = int(data[column].max())
+    _min = np.floor(data[column].min())
+    _max = np.ceil(data[column].max())
     # Check if _min is equal to _max to avoid zero division
     if _min == _max:
         raise ValueError(f'''Min and Max Values in column {column} are the same = {_max}. Check data. 
