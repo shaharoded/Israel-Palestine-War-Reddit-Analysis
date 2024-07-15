@@ -608,11 +608,14 @@ def main():
     </div>
     """
 
+    # Inject the HTML for the label with the information icon
+    st.markdown(label_with_icon, unsafe_allow_html=True)
+
     # Create the select box for Sub-Topic
     subtopics = ['Overall'] + df['Sub_Topics'].explode().unique().tolist()
     selected_subtopic = st.selectbox('Select Sub-Topic', subtopics)
-    
-    # Create the select box for Feature
+
+    # Create the select box for Feature below the label
     st.markdown(information_icon_css, unsafe_allow_html=True)
     selected_feature = st.selectbox('', list(information_hover.keys()))
 
