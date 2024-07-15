@@ -133,8 +133,11 @@ def radar(data, column):
     return fig
 
 
-def sentiment_histogram(df, selected_subtopic, column):
-    data = df.copy()
+def sentiment_histogram(data, selected_subtopic, column):
+    data = data.copy()
+    data = data[data['Sub_Topics'].apply(bool)]
+    
+    # Create subset of the data based on subtopic
     if selected_subtopic != "Overall":
         data = data.explode('Sub_Topics')
         data = data[data['Sub_Topics'] == selected_subtopic]
@@ -145,7 +148,11 @@ def sentiment_histogram(df, selected_subtopic, column):
     _max = int(data[column].max())
     # Check if _min is equal to _max to avoid zero division
     if _min == _max:
-        raise ValueError(f'Min and Max Values in column {column} are the same = {_max}. Check data.')
+        raise ValueError(f'''Min and Max Values in column {column} are the same = {_max}. Check data. 
+                         Data length = {len(data)}, 
+                         columns = {data.columns},
+                         subtopic = {selected_subtopic}
+                         ''')
     else:
         bin_size = (_max - _min) / 10
         _max = _max + bin_size
