@@ -135,18 +135,7 @@ def radar(data, column):
 
 def sentiment_histogram(df, selected_subtopic, column):
     data = df.copy()
-
-    if selected_subtopic != "Overall":
-        data = data.explode('Sub_Topics')
-        data = data[data['Sub_Topics'] == selected_subtopic]
-
-    # Separate data for Pro-Israel and Pro-Palestine
-    pro_israel_df = data[data['Affiliation'] == 'Pro-Israel']
-    pro_palestine_df = data[data['Affiliation'] == 'Pro-Palestine']
-
-    # Create a figure
-    fig = make_subplots(rows=1, cols=1)
-
+    
     # Define bins for scores. 10 bins in the viz
     # get the boundries per score 
     _min = int(data[column].min())
@@ -158,6 +147,18 @@ def sentiment_histogram(df, selected_subtopic, column):
         bin_size = (_max - _min) / 10
         _max = _max + bin_size
         bins = np.arange(_min, _max, bin_size)  # Bins from int(min) to int(max) with step bin_size
+
+
+    if selected_subtopic != "Overall":
+        data = data.explode('Sub_Topics')
+        data = data[data['Sub_Topics'] == selected_subtopic]
+
+    # Separate data for Pro-Israel and Pro-Palestine
+    pro_israel_df = data[data['Affiliation'] == 'Pro-Israel']
+    pro_palestine_df = data[data['Affiliation'] == 'Pro-Palestine']
+
+    # Create a figure
+    fig = make_subplots(rows=1, cols=1)
 
     # Get data for the selected subtopic
     pro_israel_data = pro_israel_df[column]
