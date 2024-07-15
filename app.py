@@ -501,7 +501,7 @@ def main():
     # Inject custom CSS
     st.markdown(select_box_css, unsafe_allow_html=True)
     features = ['Toxicity Score', 'Polarity Sentiment', 'Belief Speech',
-        'Factual Speech', 'Comment Score', 'Controversiality Ratio']
+        'Factual Speech', 'Controversiality Ratio']
     selected_feature = st.selectbox('Select Feature', features)
 
     col1, empty_col, col2 = st.columns([1, 0.05, 1])
@@ -511,7 +511,7 @@ def main():
         st.plotly_chart(visualizations[selected_subtopic][selected_feature]['radar'], use_container_width=True)
 
     with col2:
-        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>{selected_feature} by SubTopic</h3>",
+        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>{selected_feature} Distribution by SubTopic</h3>",
                     unsafe_allow_html=True)
         st.plotly_chart(visualizations[selected_subtopic][selected_feature]['sentiment_histogram'], use_container_width=True)
 
