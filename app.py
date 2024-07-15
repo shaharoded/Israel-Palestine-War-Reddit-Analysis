@@ -499,46 +499,13 @@ def main():
     </style>
     """
     information_hover = {
-        'Polarity Sentiment': 'A',
-        'Toxicity Score': 'B',
-        'Belief Speech': 'C',
-        'Factual Speech': 'D',
-        'Controversiality': 'E'        
-    }
-    # Custom CSS for the information icon and tooltip
-    information_icon_css = """
-    <style>
-    .tooltip {
-        position: relative;
-        display: inline-block;
-        cursor: pointer;
-        margin-left: 5px;
-        margin-top: -20px; /* Adjust this value to reduce space */
+        'Polarity Sentiment': 'Polarity Sentiment (from TextBlob): This score ranges from -1 (very negative) to 1 (very positive) and represents the sentiment polarity of the text.',
+        'Toxicity Score': 'Toxicity Score (from BERT Toxicity): This score ranges from 0 to 1 and indicates the level of toxicity in the comment, with higher scores representing more toxic content.',
+        'Belief Speech': 'Belief Speech: This score ranges from 0 to 1 and measures the similarity of the comment to a vector of words representing belief-based speech, calculated using Word2Vec.',
+        'Factual Speech': 'Factual Speech: This score ranges from 0 to 1 and measures the similarity of the comment to a vector of words representing factual speech, calculated using Word2Vec.',
+        'Controversiality': 'Controversiality: This score is based on Reddit\'s definition and ranges from 0 to 1, indicating if the comment is controversial within the Reddit community.'
     }
 
-    .tooltip .tooltiptext {
-        visibility: hidden;
-        width: 200px;
-        background-color: #555;
-        color: #fff;
-        text-align: center;
-        border-radius: 5px;
-        padding: 5px;
-        position: absolute;
-        z-index: 1;
-        bottom: 125%; /* Position the tooltip above the text */
-        left: 50%;
-        margin-left: -100px;
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
-
-    .tooltip:hover .tooltiptext {
-        visibility: visible;
-        opacity: 1;
-    }
-    </style>
-    """
     st.markdown(f"<h1 style='text-align: center; color: {text_color};'>"
                 "<span style='color: darkblue;'>Pro-Israel</span> VS. "
                 "<span style='color: green;'>Pro-Palestine</span> Behavior on Social Media</h1>",
@@ -601,21 +568,11 @@ def main():
     # Create the select box for Feature with a label
     selected_feature = st.selectbox('Select Feature', list(information_hover.keys()))
 
-    # Inject custom CSS for the information icon and tooltip
-    st.markdown(information_icon_css, unsafe_allow_html=True)
-
-    # Place the information icon below the select box
+    # Display the dynamic text box below the select box
     st.markdown(f"""
-    <div class="tooltip">ℹ️
-        <span class="tooltiptext" id="tooltip-text">{information_hover[selected_feature]}</span>
+    <div style='color: {dark_text_color}; padding: 5px; border-radius: 5px; margin-top: -10px;'>
+        <p style='font-size: small;'>{information_hover[selected_feature]}</p>
     </div>
-    """, unsafe_allow_html=True)
-
-    # Update the tooltip text based on the selected feature using JavaScript
-    st.markdown(f"""
-    <script>
-    document.getElementById('tooltip-text').innerText = '{information_hover[selected_feature]}';
-    </script>
     """, unsafe_allow_html=True)
 
     col1, empty_col, col2 = st.columns([1, 0.05, 1])
