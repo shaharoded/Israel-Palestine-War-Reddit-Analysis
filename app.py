@@ -498,6 +498,13 @@ def main():
         }}
     </style>
     """
+    information_hover = {
+        'Polarity Sentiment': 'A',
+        'Toxicity Score': 'B',
+        'Belief Speech':'C',
+        'Factual Speech':'D',
+        'Controversiality': 'E'        
+    }
     # Custom CSS for the information icon and tooltip
     information_icon_css = """
     <style>
@@ -608,13 +615,6 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    information_hover = {
-        'Polarity Sentiment': 'A',
-        'Toxicity Score': 'B',
-        'Belief Speech':'C',
-        'Factual Speech':'D',
-        'Controversiality': 'E'        
-    }
     # Allocate more space to the column containing the select box
     # Create the select box
     selected_feature = st.selectbox('Select Feature', list(information_hover.keys()))
