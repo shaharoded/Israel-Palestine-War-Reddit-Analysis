@@ -501,8 +501,8 @@ def main():
     information_hover = {
         'Polarity Sentiment': 'A',
         'Toxicity Score': 'B',
-        'Belief Speech':'C',
-        'Factual Speech':'D',
+        'Belief Speech': 'C',
+        'Factual Speech': 'D',
         'Controversiality': 'E'        
     }
     # Custom CSS for the information icon and tooltip
@@ -535,17 +535,6 @@ def main():
     .tooltip:hover .tooltiptext {
         visibility: visible;
         opacity: 1;
-    }
-
-    .label-container {
-        display: flex;
-        align-items: center;
-        margin-bottom: 5px; /* Reduce space below the label container */
-    }
-
-    label {
-        font-size: 1rem; /* Match the font size of 'Select Sub-Topic' */
-        margin-bottom: 0;
     }
     </style>
     """
@@ -601,34 +590,25 @@ def main():
 
     visualizations = precompute_visualizations(df)
 
-    # Inject custom CSS for select boxes and information icon
+    # Inject custom CSS for select boxes
     st.markdown(select_box_css, unsafe_allow_html=True)
 
     # Create the select box for Sub-Topic
     subtopics = ['Overall'] + df['Sub_Topics'].explode().unique().tolist()
     selected_subtopic = st.selectbox('Select Sub-Topic', subtopics)
 
-    # Inject custom CSS
+    # Create the select box for Feature with a label
+    selected_feature = st.selectbox('Select Feature', list(information_hover.keys()))
+
+    # Inject custom CSS for the information icon and tooltip
     st.markdown(information_icon_css, unsafe_allow_html=True)
 
-    # Default selected feature
-    selected_feature = list(information_hover.keys())[0]
-
-    # Create the label with the information icon for Select Feature
-    label_with_icon = f"""
-    <div class="label-container">
-        <label for="feature-select" style="font-size: 1rem;">Select Feature</label>
-        <div class="tooltip">ℹ️
-            <span class="tooltiptext" id="tooltip-text">{information_hover[selected_feature]}</span>
-        </div>
+    # Place the information icon below the select box
+    st.markdown(f"""
+    <div class="tooltip">ℹ️
+        <span class="tooltiptext" id="tooltip-text">{information_hover[selected_feature]}</span>
     </div>
-    """
-
-    # Inject the HTML for the label with the information icon
-    st.markdown(label_with_icon, unsafe_allow_html=True)
-
-    # Create the select box for Feature below the label
-    selected_feature = st.selectbox('', list(information_hover.keys()))
+    """, unsafe_allow_html=True)
 
     # Update the tooltip text based on the selected feature using JavaScript
     st.markdown(f"""
