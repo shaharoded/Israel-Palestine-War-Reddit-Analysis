@@ -540,6 +540,7 @@ def main():
     .label-container {
     display: flex;
     align-items: center;
+    margin-bottom: 5px; /* Reduce space below the label container */
     }
     </style>
     """
@@ -580,7 +581,7 @@ def main():
             "</div>", unsafe_allow_html=True)
 
     st.markdown(f"""
-    <div style='color: {dark_text_color}; padding: 10px; border-radius: 5px;'>
+    <div style='color: {dark_text_color}; padding: 5px; border-radius: 5px; margin-bottom: 5px;'>
         <p style='font-size: small;'>
             <b>ℹ️ Note:</b><br>
             Comments are classified into Pro-Israel and Pro-Palestine groups using a trained SVM model. 
@@ -606,9 +607,9 @@ def main():
     # Create the label with the information icon for Select Feature
     label_with_icon = f"""
     <div class="label-container">
-        <label for="feature-select">Select Feature</label>
+        <label for="feature-select" style="font-size: 1rem;">Select Feature</label>
         <div class="tooltip">ℹ️
-            <span class="tooltiptext" id="tooltip-text">{information_hover['Polarity Sentiment']}</span>
+            <span class="tooltiptext" id="tooltip-text">{information_hover[selected_subtopic]}</span>
         </div>
     </div>
     """
