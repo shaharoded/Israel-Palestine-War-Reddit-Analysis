@@ -153,9 +153,7 @@ def sentiment_histogram(df, selected_subtopic, column):
     _max = int(data[column].max())
     # Check if _min is equal to _max to avoid zero division
     if _min == _max:
-        # Handle the case where all values are the same
-        bin_size = 1  # Arbitrary bin size, since all values are the same
-        bins = np.arange(_min, _max + bin_size, bin_size)
+        raise ValueError(f'Min and Max Values in column {column} are the same = {_max}')
     else:
         bin_size = (_max - _min) / 10
         _max = _max + bin_size
@@ -511,7 +509,7 @@ def main():
         st.plotly_chart(visualizations[selected_subtopic][selected_feature]['radar'], use_container_width=True)
 
     with col2:
-        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>{selected_feature} Distribution by SubTopic</h3>",
+        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>{selected_feature} Distribution for '{selected_subtopic}'</h3>",
                     unsafe_allow_html=True)
         st.plotly_chart(visualizations[selected_subtopic][selected_feature]['sentiment_histogram'], use_container_width=True)
 
