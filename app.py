@@ -609,7 +609,7 @@ def main():
     <div class="label-container">
         <label for="feature-select" style="font-size: 1rem;">Select Feature</label>
         <div class="tooltip">ℹ️
-            <span class="tooltiptext" id="tooltip-text">{information_hover[selected_subtopic]}</span>
+            <span class="tooltiptext" id="tooltip-text">{information_hover[selected_feature]}</span>
         </div>
     </div>
     """
