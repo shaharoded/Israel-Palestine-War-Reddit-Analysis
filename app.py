@@ -119,7 +119,7 @@ def radar(data, column):
         polar=dict(
             radialaxis=dict(visible=True, range=[min(values_israel + values_palestine), max(values_israel + values_palestine)]),
             angularaxis=dict(
-                tickfont=dict(size=12),
+                tickfont=dict(size=10),
                 categoryarray=subtopics_israel + [subtopics_israel[0]],  # Set custom category order
                 categoryorder='array'
             )
@@ -215,6 +215,7 @@ def sentiment_histogram(df, selected_subtopic):
         barmode='group',  # Side-by-side bars
         yaxis=dict(tickvals=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], ticktext=["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"]),
         margin=dict(t=10, b=15, l=50, r=50),  # Adjusted margins
+        hoverlabel=dict(font_size=14),
         height=300
     )
 
@@ -282,7 +283,8 @@ def heatmap(df, subtopic):
         margin=dict(l=0, r=0, t=40, b=80),
         plot_bgcolor='rgba(0,0,0,0)',  # Set plot background to be transparent
         paper_bgcolor='rgba(0,0,0,0)',  # Set paper background to be transparent
-        font=dict(color='black')
+        font=dict(color='black'),
+        hoverlabel=dict(font_size=14)
     )
 
     # Ensure the grid is visible and fits properly
@@ -328,6 +330,7 @@ def pie_chart(data_dict):
             )
         ],
         showlegend=False,  # Remove legend
+        hoverlabel=dict(font_size=14),
         height=150,  # Adjust height
         margin=dict(l=10, r=10, t=30, b=10)  # Adjust margins
     )
