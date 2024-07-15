@@ -399,10 +399,10 @@ def precompute_visualizations(df):
         for feature in features_mapper:
             radar_fig = radars[feature]
             sentiment_histogram_fig = sentiment_histogram(df, subtopic, features_mapper[feature])
-            visualizations[subtopic][feature] = {
-                'heatmap': go.Figure(heatmap_fig).to_dict(),
-                'sentiment_histogram': go.Figure(sentiment_histogram_fig).to_dict(),
-                'radar': go.Figure(radar_fig).to_dict()
+            visualizations[subtopic][feature] = { # Store figs directly as Fig object
+                'heatmap': heatmap_fig,
+                'sentiment_histogram': sentiment_histogram_fig,
+                'radar': radar_fig
             }
     return visualizations
 
@@ -508,7 +508,7 @@ def main():
     with col1:
         st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Average {selected_feature} by SubTopic</h3>",
                     unsafe_allow_html=True)
-        st.plotly_chart(visualizations[selected_subtopic][selected_feature], use_container_width=True)
+        st.plotly_chart(visualizations[selected_subtopic][selected_feature]['radar'], use_container_width=True)
 
     with col2:
         st.markdown(f"<h3 style='text-align: center; color: {text_color};'>{selected_feature} by SubTopic</h3>",
