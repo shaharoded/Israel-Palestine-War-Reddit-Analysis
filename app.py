@@ -582,7 +582,7 @@ def main():
         st.plotly_chart(visualizations[selected_subtopic][selected_feature]['radar'], use_container_width=True)
 
     with col2:
-        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>{selected_feature} Distribution for '{selected_subtopic}'</h3>",
+        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>{selected_feature} Distribution for Sub Topic: '{selected_subtopic}'</h3>",
                     unsafe_allow_html=True)
         st.plotly_chart(visualizations[selected_subtopic][selected_feature]['sentiment_histogram'], use_container_width=True)
 
