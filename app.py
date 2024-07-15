@@ -394,6 +394,7 @@ def precompute_visualizations(df):
         radar_fig = radar(df, features_mapper[feature])
         radars[feature] = radar_fig
     for subtopic in subtopics:
+        visualizations[subtopic] = {}
         heatmap_fig = heatmap(df, subtopic)
         for feature in features_mapper:
             sentiment_histogram_fig = sentiment_histogram(df, subtopic, features_mapper[feature])
