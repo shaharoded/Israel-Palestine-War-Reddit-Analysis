@@ -434,8 +434,8 @@ def main():
 
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col1:
-        st.markdown(f"<div style='background-color: rgba(0, 0, 139, 0.1); padding: 10px; border-radius: 5px; height: 150px;'>"
-                    f"<p style='font-size: large; text-align: center; margin-top: 30px;'>"
+        st.markdown(f"<div style='background-color: rgba(0, 0, 139, 0.1); padding: 5px; border-radius: 5px; height: 150px;'>"
+                    f"<p style='font-size: large; text-align: center; margin-top: 5px;'>"
                     f"<b>{pro_israel_score:.2f}</b><br><span style='font-size: small;'>Avg Comment Score</span><br><span style='font-size: small;'>(Likes - Dislikes)</span></p>"
                     "</div>", unsafe_allow_html=True)
 
@@ -447,8 +447,8 @@ def main():
         st.plotly_chart(pie_fig, use_container_width=True)
 
     with col3:
-        st.markdown(f"<div style='background-color: rgba(0, 128, 0, 0.1); padding: 10px; border-radius: 5px; height: 150px;'>"
-                    f"<p style='font-size: large; text-align: center; margin-top: 30px;'>"
+        st.markdown(f"<div style='background-color: rgba(0, 128, 0, 0.1); padding: 5px; border-radius: 5px; height: 150px;'>"
+                    f"<p style='font-size: large; text-align: center; margin-top: 5px;'>"
                     f"<b>{pro_palestine_score:.2f}</b><br><span style='font-size: small;'>Avg Comment Score</span><br><span style='font-size: small;'>(Likes - Dislikes)</span></p>"
                     "</div>", unsafe_allow_html=True)
 
