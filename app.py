@@ -503,7 +503,7 @@ def main():
         'Toxicity Score': 'Toxicity Score (from BERT Toxicity): This score ranges from 0 to 1 and indicates the level of toxicity in the comment, with higher scores representing more toxic content.',
         'Belief Speech': 'Belief Speech: This score ranges from 0 to 1 and measures the similarity of the comment to a vector of words representing belief-based speech, calculated using Word2Vec.',
         'Factual Speech': 'Factual Speech: This score ranges from 0 to 1 and measures the similarity of the comment to a vector of words representing factual speech, calculated using Word2Vec.',
-        'Controversiality': 'Controversiality: This score is based on Reddit\'s definition and ranges from 0 to 1, indicating if the comment is controversial within the Reddit community.'
+        'Controversiality': 'Controversiality: This score is based on Reddit\'s definition and is binary [0, 1], indicating if the comment is controversial within the Reddit community.'
     }
 
     st.markdown(f"<h1 style='text-align: center; color: {text_color};'>"
