@@ -14,7 +14,7 @@ All dataprocess codefiles are available in this repository.
 
 A comprehensive report is publicly available (in Hebrew) on my Google Drive, in this link:
 
-https://drive.google.com/drive/folders/1J3cfvAIdATJIkOix8Y02kDcxJH1cFhGy
+[https://drive.google.com/drive/folders/1J3cfvAIdATJIkOix8Y02kDcxJH1cFhGy](https://drive.google.com/file/d/1iNVXmrpGq3TR_bNZMI8Mt3pR62XbdZBz/view?usp=drive_link)
 
 ## Main Tasks (Questions Answered)
 
