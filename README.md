@@ -1,12 +1,12 @@
 # Visualization Dashboard to compare the online behavior of Pro-Palestinians vs. Pro-Israelis on Reddit, regarding the Israel-Gaza war (2023-2024)
 
-This project provides a visualization dashboard to analyze and compare Pro-Palestinian and Pro-Israel online content & comments based on various metrics such as Toxicity Score, Sentiment Distribution, and more, while breaking these aspects to different topics and speech type. The dashboard is built using Streamlit and Plotly for interactive visualizations.
+This project provides a visualization dashboard to analyze and compare Pro-Palestinian and Pro-Israel online content & comments based on various NLP metrics such as Toxicity Score, Sentiment Distribution, and more, while breaking these aspects to different topics and speech type. The dashboard is built using Streamlit and Plotly for interactive visualizations and allows between and within group comparisons on varius speech derived features.
 
 The original dataset is available here:
 
 https://www.kaggle.com/datasets/asaniczka/reddit-on-israel-palestine-daily-updated
 
-The dashboard is available on:
+The dashboard is available on (app might turn to sleep if wasn't used for a while):
 
 https://israel-palestine-war-reddit-analysis-6nekyrcmznptivya9ogcpl.streamlit.app/
 
@@ -21,15 +21,16 @@ A comprehensive report is publicly available (in Hebrew) on my Google Drive, in 
 ![Network Visualization](Images/Picture1.png)
 ![Network Visualization](Images/Picture2.png)
 ![Network Visualization](Images/Picture3.png)
+![Network Visualization](Images/Picture4.png)
 
-## Main Tasks (Questions Answered)
+## Main User Tasks (Questions to be Answered Using the Dashboard)
 
 1. **Sentiment Analysis**: Analyze the sentiment distribution for different subtopics within Pro-Palestinian and Pro-Israel content.
 2. **Toxicity and Controversiality**: Compare the Toxicity Score for Pro-Palestinian and Pro-Israel content, regarding different sub topics - conflict related.
 3. **Content Representation**: Visualize the proportion of Pro-Palestinian vs. Pro-Israel comments and their average scores (positive / negative responses).
 4. **Factual vs. Emotional Speech**: Compare the factual and emotional speech patterns for both groups using a heatmap.
 
-## How to Activate the App
+## How to Re-Create the App using Streamlit
 
 ### Prerequisites
 
