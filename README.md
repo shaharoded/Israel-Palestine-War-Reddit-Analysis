@@ -16,6 +16,12 @@ A comprehensive report is publicly available (in Hebrew) on my Google Drive, in 
 
 [https://drive.google.com/drive/folders/1J3cfvAIdATJIkOix8Y02kDcxJH1cFhGy](https://drive.google.com/file/d/1iNVXmrpGq3TR_bNZMI8Mt3pR62XbdZBz/view?usp=drive_link)
 
+## Dashboard
+
+![Network Visualization](Images/Picture1.png)
+![Network Visualization](Images/Picture2.png)
+![Network Visualization](Images/Picture3.png)
+
 ## Main Tasks (Questions Answered)
 
 1. **Sentiment Analysis**: Analyze the sentiment distribution for different subtopics within Pro-Palestinian and Pro-Israel content.
@@ -55,3 +61,4 @@ git add app.py  # And any additional file you wish to directly update
 git commit -m "Explain why you are disrupting Git peace and quiet (what are the changes)"
 git push -u origin master
 ```
+
