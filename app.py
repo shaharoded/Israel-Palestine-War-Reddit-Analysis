@@ -586,7 +586,7 @@ def main():
                     unsafe_allow_html=True)
         st.plotly_chart(visualizations[selected_subtopic][selected_feature]['sentiment_histogram'], use_container_width=True)
 
-    st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Factual vs Emotional Speech by Affiliation for SubTopic = {selected_subtopic}</h3>",
+    st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Factual vs Emotional Speech by Affiliation for SubTopic '{selected_subtopic}'</h3>",
                 unsafe_allow_html=True)
     st.plotly_chart(visualizations[selected_subtopic][selected_feature]['heatmap'], use_container_width=True)
  
