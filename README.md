@@ -12,6 +12,7 @@ All dataprocess codefiles are available in this repository.
 
 ## Structure
 
+```bash
 ├── app.py                                          # Streamlit dashboard app (based on processed data)
 ├── DatasetProcess.ipynb                            # Initial data cleaning and preparation
 ├── NLPFeatureExtraction.ipynb                      # Advanced NLP feature extraction (toxicity, sentiment, etc.)
@@ -19,6 +20,7 @@ All dataprocess codefiles are available in this repository.
 ├── requirements.txt                                # Python dependencies
 ├── LICENSE                                         # License information
 └── README.md                                       # Project overview and instructions
+```
 
 ## Dashboard
 
