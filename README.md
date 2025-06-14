@@ -2,9 +2,9 @@
 
 This project provides a dashboard to analyze and compare Pro-Palestinian and Pro-Israel online content & comments based on various NLP metrics such as Toxicity Score, Sentiment Distribution, and more, while breaking these aspects to different topics and speech type. The dashboard is built using Streamlit and Plotly for interactive visualizations and allows between and within group comparisons on varius speech derived features.
 
-The original dataset is available on [this link](https://www.kaggle.com/datasets/asaniczka/reddit-on-israel-palestine-daily-updated)
+The original dataset is available on [this link](https://www.kaggle.com/datasets/asaniczka/reddit-on-israel-palestine-daily-updated).
 
-The dashboard is available on [this link](https://israel-palestine-war-reddit-analysis.streamlit.app/) (app might turn to sleep if wasn't used for a while)
+The dashboard is available on [this link](https://israel-palestine-war-reddit-analysis.streamlit.app/) (app might turn to sleep if wasn't used for a while).
 
 The processed dataset, ready for analysis, and the original dataset snapshot used for this research are available in [this link](https://drive.google.com/drive/u/0/folders/1oNywMWfqNQbF2lvMqL63e5gSun5hbrOE).
 
