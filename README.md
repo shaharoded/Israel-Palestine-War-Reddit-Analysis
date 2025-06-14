@@ -1,6 +1,6 @@
-# Visualization Dashboard to compare the online behavior of Pro-Palestinians vs. Pro-Israelis on Reddit, regarding the Israel-Gaza war (OCT 2023-MAY 2025)
+# Comparative Analysis of the Online Behavior of Pro-Palestinians vs. Pro-Israelis on Reddit, Regarding the Israel-Palestine War (OCT 2023-MAY 2025)
 
-This project provides a visualization dashboard to analyze and compare Pro-Palestinian and Pro-Israel online content & comments based on various NLP metrics such as Toxicity Score, Sentiment Distribution, and more, while breaking these aspects to different topics and speech type. The dashboard is built using Streamlit and Plotly for interactive visualizations and allows between and within group comparisons on varius speech derived features.
+This project provides a dashboard to analyze and compare Pro-Palestinian and Pro-Israel online content & comments based on various NLP metrics such as Toxicity Score, Sentiment Distribution, and more, while breaking these aspects to different topics and speech type. The dashboard is built using Streamlit and Plotly for interactive visualizations and allows between and within group comparisons on varius speech derived features.
 
 The original dataset is available on [this link](https://www.kaggle.com/datasets/asaniczka/reddit-on-israel-palestine-daily-updated)
 
