@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import ast
 from datetime import datetime
+import zipfile
+import pickle
 import warnings
 import streamlit as st
 import plotly.express as px
@@ -13,25 +15,15 @@ from plotly.subplots import make_subplots
 # Ignore PerformanceWarning
 warnings.filterwarnings('ignore', category=pd.errors.PerformanceWarning)
 
-# Google Drive file ID
+# Google Drive viz zip file ID
+VIS_ZIP_PATH = "Viz/visualizations.zip"
+VIS_ZIP_GDRIVE_ID = "1245"  # replace with your actual file ID
+VIS_ZIP_DOWNLOAD_URL = f"https://drive.google.com/uc?id={VIS_ZIP_GDRIVE_ID}"
+
+# Google Drive data file ID
 FILE_PATH = "Data/classified_comment_stance_with_features.csv"
 FILE_ID = "1J7rrdBLdve0JM0yGWwygrs-i1dB6cC4q"
 DOWNLOAD_URL = f"https://drive.google.com/uc?id={FILE_ID}"
-
-if not os.path.exists(FILE_PATH):
-    os.makedirs(os.path.dirname(FILE_PATH), exist_ok=True)
-    
-    with st.status("📥 Downloading data from Google Drive... Please wait (~3 min).", expanded=True) as status:
-        try:
-            gdown.download(DOWNLOAD_URL, FILE_PATH, quiet=False)
-            st.success(f"✅ Download complete.")
-            status.update(label="✅ File ready.", state="complete")
-        except Exception as e:
-            st.error(f"❌ Download failed: {e}")
-            status.update(label="❌ Download failed.", state="error")
-            st.stop()
-else:
-    st.info(f"📄 Using cached file: `{FILE_PATH}`")
 
 
 def radar(data, column):   
@@ -591,7 +583,7 @@ def load_and_process_data(csv_filepath, sample=None):
 
     except Exception as e:
         raise Exception(f"❌ Error loading dataset: {e}")
-    
+
 
 @st.cache_resource
 def precompute_visualizations(df):
@@ -709,6 +701,38 @@ def main():
             'Emotionality Score (from Word2Vec projection): Measures the emotional tone of the comment, with higher scores indicating more emotional content. Ranges from 0 to 1.'
         )
     }
+
+    # Viz acquisition block 
+    if os.path.exists(VIS_ZIP_PATH):
+        with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
+            with zipf.open("visualizations.pkl") as f:
+                visualizations = pickle.load(f)
+        st.success("✅ Loaded precomputed visualizations.")
+    else:
+        st.warning("⚠️ Precomputed visualizations not found. Attempting to download from Drive...")
+        try:
+            gdown.download(VIS_ZIP_DOWNLOAD_URL, VIS_ZIP_PATH, quiet=False)
+            with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
+                with zipf.open("visualizations.pkl") as f:
+                    visualizations = pickle.load(f)
+            st.success("✅ Downloaded and loaded visualizations from Google Drive.")
+        except Exception as e:
+            st.warning("⚠️ Download failed. Falling back to local computation...")
+            if not os.path.exists(FILE_PATH):
+                os.makedirs(os.path.dirname(FILE_PATH), exist_ok=True)
+                with st.status("📥 Downloading data from Google Drive... Please wait (~3 min).", expanded=True) as status:
+                    try:
+                        gdown.download(DOWNLOAD_URL, FILE_PATH, quiet=False)
+                        st.success("✅ Download complete.")
+                        status.update(label="✅ File ready.", state="complete")
+                    except Exception as e:
+                        st.error(f"❌ Download failed: {e}")
+                        status.update(label="❌ Download failed.", state="error")
+                        st.stop()
+            else:
+                st.info(f"📄 Using cached file: `{FILE_PATH}`")
+            df = load_and_process_data(FILE_PATH, sample=None)
+            visualizations = precompute_visualizations(df)
     
     st.markdown(f"<h1 style='text-align: center; color: {text_color};'>"
                 "<span style='color: darkblue;'>Pro-Israel</span> VS. "
@@ -717,7 +741,6 @@ def main():
     st.markdown(f"<h2 style='text-align: center; color: {text_color};'>Israel-Gaza War Reddit Discussions<br>(OCT 2023 - MAY 2025)</h2>",
                 unsafe_allow_html=True)
 
-    df = load_and_process_data(FILE_PATH, sample=None)
     pro_israel_score = df[df['Affiliation'] == 'Pro-Israel']['Score'].mean()
     pro_palestine_score = df[df['Affiliation'] == 'Pro-Palestine']['Score'].mean()
 
@@ -755,8 +778,6 @@ def main():
         </p>
     </div>
     """, unsafe_allow_html=True)
-
-    visualizations = precompute_visualizations(df)
 
     # Inject custom CSS for select boxes
     st.markdown(select_box_css, unsafe_allow_html=True)
@@ -800,19 +821,6 @@ def main():
 if __name__ == "__main__":
     print("📂 Current directory:", os.getcwd())
     print("📄 Files in directory:", os.listdir())
-
-    # Ensure the dataset exists
-    if not os.path.exists(FILE_PATH):
-        print(f"🚨 ERROR: {FILE_PATH} not found!")
-
-    # # Load data (for validation)
-    # df = load_and_process_data(FILE_PATH)
-
-    # # Debug: Print column names
-    # print("🧩 DataFrame columns:", df.columns.tolist())
-
-    # # Print first few rows to confirm data is loaded correctly
-    # print(df.head())
     
     # Now let's go!
     main()

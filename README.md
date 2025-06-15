@@ -7,6 +7,7 @@ The original dataset is available on [this link](https://www.kaggle.com/datasets
 The dashboard is available on [this link](https://israel-palestine-war-reddit-user-behavior-analysis.streamlit.app/) (app might turn to sleep if wasn't used for a while).
 
 The processed dataset, ready for analysis, and the original dataset snapshot used for this research are available in [this link](https://drive.google.com/drive/u/0/folders/1oNywMWfqNQbF2lvMqL63e5gSun5hbrOE).
+You will also find there precomputed visualizations that are loaded to the app, due to streamlit's resource constraint.
 
 All dataprocess codefiles are available in this repository.
 
