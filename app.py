@@ -1,8 +1,8 @@
 import os
+import gdown
 import pandas as pd
 import numpy as np
 import re
-import zipfile
 import warnings
 import streamlit as st
 import plotly.graph_objects as go
@@ -11,11 +11,17 @@ from plotly.subplots import make_subplots
 # Ignore PerformanceWarning
 warnings.filterwarnings('ignore', category=pd.errors.PerformanceWarning)
 
-# Google Drive .zip file ID
-FILE_NAME = 'Preprocessed_Data.csv'
-ZIP_FILE_PATH = 'Data and models/Preprocessed_Data.zip'
+# Google Drive file ID
+FILE_PATH = "Data/classified_comment_stance_with_features.csv"
+FILE_ID = "1J7rrdBLdve0JM0yGWwygrs-i1dB6cC4q"
+DOWNLOAD_URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
-# Function to parse the Sub_Topics string
+if not os.path.exists(FILE_PATH):
+    os.makedirs(os.path.dirname(FILE_PATH), exist_ok=True)
+    print("Downloading CSV from Google Drive...")
+    gdown.download(DOWNLOAD_URL, FILE_PATH, quiet=False)
+
+# Function to parse the Topics string
 def parse_subtopics(subtopics_str):
     '''
     Fix subtopics column to a workable format.
@@ -26,67 +32,37 @@ def parse_subtopics(subtopics_str):
         return set(subtopics) if subtopics else set()
     return set()
 
-def balanced_sample(df, column):
-    '''
-    Create a balanced sample of comments from both groups
-    '''
-    # Count the number of occurrences in each group
-    group_counts = df[column].value_counts()
 
-    # Identify the minority group and its count
-    minority_group = group_counts.idxmin()
-    minority_count = group_counts.min()
-
-    # Sample the same amount from the majority group
-    majority_group = group_counts.idxmax()
-    majority_sample = df[df[column] == majority_group].sample(n=minority_count, random_state=42)
-
-    # Get all rows from the minority group
-    minority_sample = df[df[column] == minority_group]
-
-    # Concatenate the minority and majority samples
-    balanced_df = pd.concat([minority_sample, majority_sample], ignore_index=True)
-
-    return balanced_df
-
-def radar(data, column):
-    column_to_name = {
-        'Polarity_Sentiment' : 'Polarity Sentiment',
-        'Toxicity_Score' : 'Toxicity Score',
-        'Belief_Similarity' : 'Belief Speech',
-        'Fact_Similarity' : 'Factual Speech',
-        'Controversiality' : 'Controversiality'
-    } # Built like {feature: column name}
-    
+def radar(data, column):   
     # Preprocess the data
     data = data.copy()
-    data = data[data['Sub_Topics'].apply(bool)]
+    data = data[data['Topics'].apply(bool)]
 
     # Explode the data to have one row per subtopic
-    exploded_data = data.explode('Sub_Topics')
-    exploded_data = exploded_data.dropna(subset=['Sub_Topics'])
+    exploded_data = data.explode('Topics')
+    exploded_data = exploded_data.dropna(subset=['Topics'])
 
     # Group by Affiliation and Subtopics to calculate the average sentiment
-    grouped_data = exploded_data.groupby(['Affiliation', 'Sub_Topics']).agg({column: 'mean'}).reset_index()
+    grouped_data = exploded_data.groupby(['Affiliation', 'Topics']).agg({column: 'mean'}).reset_index()
 
     # Prepare data for radar plot by group
     pro_israel_data = grouped_data[grouped_data['Affiliation'] == 'Pro-Israel']
     pro_palestine_data = grouped_data[grouped_data['Affiliation'] == 'Pro-Palestine']
 
     # Ensure Subtopics are aligned between the two groups for consistent radar plot structure
-    all_subtopics = set(pro_israel_data['Sub_Topics']).union(set(pro_palestine_data['Sub_Topics']))
+    all_subtopics = set(pro_israel_data['Topics']).union(set(pro_palestine_data['Topics']))
     for subtopic in all_subtopics:
-        if subtopic not in pro_israel_data['Sub_Topics'].values:
-            pro_israel_data = pro_israel_data.append({'Affiliation': 'Pro-Israel', 'Sub_Topics': subtopic, column: 0}, ignore_index=True)
-        if subtopic not in pro_palestine_data['Sub_Topics'].values:
-            pro_palestine_data = pro_palestine_data.append({'Affiliation': 'Pro-Palestine', 'Sub_Topics': subtopic, column: 0}, ignore_index=True)
+        if subtopic not in pro_israel_data['Topics'].values:
+            pro_israel_data = pro_israel_data.append({'Affiliation': 'Pro-Israel', 'Topics': subtopic, column: 0}, ignore_index=True)
+        if subtopic not in pro_palestine_data['Topics'].values:
+            pro_palestine_data = pro_palestine_data.append({'Affiliation': 'Pro-Palestine', 'Topics': subtopic, column: 0}, ignore_index=True)
 
     # Sort by Subtopics to ensure consistency
-    pro_israel_data = pro_israel_data.sort_values(by='Sub_Topics')
-    pro_palestine_data = pro_palestine_data.sort_values(by='Sub_Topics')
-    subtopics_israel = pro_israel_data['Sub_Topics'].tolist()
+    pro_israel_data = pro_israel_data.sort_values(by='Topics')
+    pro_palestine_data = pro_palestine_data.sort_values(by='Topics')
+    subtopics_israel = pro_israel_data['Topics'].tolist()
     values_israel = pro_israel_data[column].tolist()
-    subtopics_palestine = pro_palestine_data['Sub_Topics'].tolist()
+    subtopics_palestine = pro_palestine_data['Topics'].tolist()
     values_palestine = pro_palestine_data[column].tolist()
 
     # Create DataFrames for Plotly
@@ -109,7 +85,7 @@ def radar(data, column):
         fill='toself',
         name='Pro-Israel',
         line=dict(color='rgba(0, 0, 255, 0.6)'),
-        hovertemplate=f'Pro-Israel<br>Avg {column_to_name[column]}: %{{r}}<br>SubTopic: %{{theta}}<extra></extra>'
+        hovertemplate=f'Pro-Israel<br>Avg {column}: %{{r}}<br>Topic: %{{theta}}<extra></extra>'
     ))
 
     # Add the radar chart for pro-Palestine
@@ -119,7 +95,7 @@ def radar(data, column):
         fill='toself',
         name='Pro-Palestine',
         line=dict(color='rgba(0, 128, 0, 0.6)'),
-        hovertemplate=f'Pro-Palestine<br>Avg {column_to_name[column]}: %{{r}}<br>SubTopic: %{{theta}}<extra></extra>'
+        hovertemplate=f'Pro-Palestine<br>Avg {column}: %{{r}}<br>Topic: %{{theta}}<extra></extra>'
     ))
 
     # Update layout for title and axis labels
@@ -145,14 +121,14 @@ def radar(data, column):
     return fig
 
 
-def sentiment_histogram(data, selected_subtopic, column):
+def histogram(data, selected_subtopic, column):
     data = data.copy()
-    data = data[data['Sub_Topics'].apply(bool)]
+    data = data[data['Topics'].apply(bool)]
     
     # Create subset of the data based on subtopic
     if selected_subtopic != "Overall":
-        data = data.explode('Sub_Topics')
-        data = data[data['Sub_Topics'] == selected_subtopic]
+        data = data.explode('Topics')
+        data = data[data['Topics'] == selected_subtopic]
     
     # Define bins for scores. 10 bins in the viz
     # get the boundries per score 
@@ -259,19 +235,15 @@ def heatmap(df, subtopic):
     data = df.copy()
 
     if subtopic != "Overall":
-        data = data.explode('Sub_Topics')
-        data = data[data['Sub_Topics'] == subtopic]
-
-    # Normalize Fact_Similarity and Belief_Similarity to be between 0 and 1
-    data['Fact_Similarity'] = (data['Fact_Similarity'] - data['Fact_Similarity'].min()) / (data['Fact_Similarity'].max() - data['Fact_Similarity'].min())
-    data['Belief_Similarity'] = (data['Belief_Similarity'] - data['Belief_Similarity'].min()) / (data['Belief_Similarity'].max() - data['Belief_Similarity'].min())
+        data = data.explode('Topics')
+        data = data[data['Topics'] == subtopic]
 
     # Function to create hexbin traces
     def create_hexbin_trace(df, affiliation, color):
         subset = df[df['Affiliation'] == affiliation]
 
-        x = subset['Fact_Similarity']
-        y = subset['Belief_Similarity']
+        x = subset['Factual Speech Similarity']
+        y = subset['Belief Speech Similarity']
 
         hist, xedges, yedges = np.histogram2d(x, y, bins=[20, 20], range=[[0, 1], [0, 1]])
         hist = hist.T
@@ -286,8 +258,8 @@ def heatmap(df, subtopic):
             showscale=False,
             name=f'{affiliation}',
             hovertemplate=(
-                'Fact Speaking Score: %{x}<br>'
-                'Belief Speaking Score: %{y}<br>'
+                'Factual Speech Similarity: %{x}<br>'
+                'Belief Speech Similarity: %{y}<br>'
                 'Density Measure (Percentile): %{z:.2f}%<br>'
                 'Percent of Group: %{customdata:.2f}%<extra></extra>'
             ),
@@ -310,7 +282,7 @@ def heatmap(df, subtopic):
     fig.update_layout(
         xaxis=dict(
             range=[0, 1],
-            title=dict(text='Fact Speaking Score', font=dict(color='#454A4A')),
+            title=dict(text='Factual Speech Similarity', font=dict(color='#454A4A')),
             tickfont=dict(color='#454A4A'),  # Change x-axis tick label color
             showgrid=True,
             gridwidth=1,
@@ -320,7 +292,7 @@ def heatmap(df, subtopic):
         ),
         yaxis=dict(
             range=[0, 1],
-            title=dict(text='Belief Speaking Score', font=dict(color='#454A4A')),
+            title=dict(text='Belief Speech Similarity', font=dict(color='#454A4A')),
             tickfont=dict(color='#454A4A'),  # Change y-axis tick label color
             showgrid=True,
             gridwidth=1,
@@ -330,7 +302,7 @@ def heatmap(df, subtopic):
         ),
         xaxis2=dict(
             range=[0, 1],
-            title=dict(text='Fact Speaking Score', font=dict(color='#454A4A')),
+            title=dict(text='Factual Speech Similarity', font=dict(color='#454A4A')),
             tickfont=dict(color='#454A4A'),  # Change x-axis2 tick label color
             showgrid=True,
             gridwidth=1,
@@ -340,7 +312,7 @@ def heatmap(df, subtopic):
         ),
         yaxis2=dict(
             range=[0, 1],
-            title=dict(text='Belief Speaking Score', font=dict(color='#454A4A')),
+            title=dict(text='Belief Speech Similarity', font=dict(color='#454A4A')),
             tickfont=dict(color='#454A4A'),  # Change y-axis2 tick label color
             showgrid=True,
             gridwidth=1,
@@ -406,23 +378,50 @@ def pie_chart(data_dict):
 
 
 @st.cache_data
-def load_and_process_data(zip_filepath, csv_filename):
+def load_and_process_data(csv_filepath):
     '''
     Pre-process the data, and cache to save calculations.
     '''
     try:
-        # Extract the zip file in memory
-        with zipfile.ZipFile(zip_filepath, 'r') as zip_ref:
-            with zip_ref.open(csv_filename) as f:
-                df = pd.read_csv(f, index_col=None, on_bad_lines='skip')
+        # Read CSV
+        df = pd.read_csv(csv_filepath, index_col=None, on_bad_lines='skip')
 
+        # Map columns to new (presentable) names
+        columns_to_keep = ["comment_id", "created_time", "score", "predicted_label", "toxic", "severe_toxic",
+                           "obscene", "threat", "insult", "identity_hate", "sentiment_score", "factual_score", "belief_score",
+                           "emotionality_score", "super_topics"]
+        df = df[columns_to_keep]
+        df.rename(columns={
+            "score": "Score", 
+            "predicted_label": "Affiliation",
+            "toxic": "Toxicity Score",
+            "severe_toxic": "Severe Toxicity Score",
+            "obscene": "Obscenity Score",
+            "threat": "Threat Score",
+            "insult": "Insult Score",
+            "identity_hate": "Identity Hate Score",
+            "sentiment_score": "Polarity Sentiment Score",
+            "factual_score": "Factual Speech Similarity",
+            "belief_score": "Belief Speech Similarity",
+            "emotionality_score": "Emotionality Score",
+            "super_topics": "Topics"
+            })
+        
         # Process the DataFrame
-        df['Sub_Topics'] = df['Sub_Topics'].apply(parse_subtopics)
+        df['Topics'] = df['Topics'].apply(parse_subtopics)
         valid_affiliations = {'Pro-Israel', 'Pro-Palestine'}
         df = df[df['Affiliation'].isin(valid_affiliations)]
-        df['Score'] = pd.to_numeric(df['Score'], errors='coerce')
+
+                # Convert all numeric columns
+        numeric_cols = [
+            "Score", "Toxicity Score", "Severe Toxicity Score", "Obscenity Score",
+            "Threat Score", "Insult Score", "Identity Hate Score", "Polarity Sentiment Score",
+            "Factual Speech Similarity", "Belief Speech Similarity", "Emotionality Score"
+        ]
+        df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
+
         df = df.dropna(how='any').reset_index(drop=True)
-        df = df[df['Sub_Topics'].apply(lambda x: x != set())].reset_index(drop=True)
+        df = df[df['Topics'].apply(lambda x: x != set())].reset_index(drop=True)
 
         return df
 
@@ -436,28 +435,33 @@ def precompute_visualizations(df):
     '''
     Pre-compute all visualizations to avoid heavy calculation for every filter change.
     '''
-    subtopics = ['Overall'] + df['Sub_Topics'].explode().unique().tolist()
-    features_mapper = {
-        'Polarity Sentiment': 'Polarity_Sentiment',
-        'Toxicity Score': 'Toxicity_Score',
-        'Belief Speech': 'Belief_Similarity',
-        'Factual Speech': 'Fact_Similarity',
-        'Controversiality': 'Controversiality'
-    } # Built like {feature: column name}
-    visualizations = {} # Create viz for every combination of subtopic adn feature {'subtopic': {'feature': {'heatmap', 'sentiment_histogram', 'radar'}}} 
+    subtopics = ['Overall'] + df['Topics'].explode().unique().tolist()
+    features = [
+            "Toxicity Score",
+            "Severe Toxicity Score",
+            "Obscenity Score",
+            "Threat Score",
+            "Insult Score",
+            "Identity Hate Score",
+            "Polarity Sentiment Score",
+            "Emotionality Score",
+            "Factual Speech Similarity",
+            "Belief Speech Similarity"
+     ]
+    visualizations = {} # Create viz for every combination of subtopic and feature {'subtopic': {'feature': {'heatmap', 'histogram', 'radar'}}} 
     radars = {}
-    for feature in features_mapper:
-        radar_fig = radar(df, features_mapper[feature])
+    for feature in features:
+        radar_fig = radar(df, feature)
         radars[feature] = radar_fig
     for subtopic in subtopics:
         visualizations[subtopic] = {}
         heatmap_fig = heatmap(df, subtopic)
-        for feature in features_mapper:
+        for feature in features:
             radar_fig = radars[feature]
-            sentiment_histogram_fig = sentiment_histogram(df, subtopic, features_mapper[feature])
+            histogram_fig = histogram(df, subtopic, feature)
             visualizations[subtopic][feature] = { # Store figs directly as Fig object
                 'heatmap': heatmap_fig,
-                'sentiment_histogram': sentiment_histogram_fig,
+                'histogram': histogram_fig,
                 'radar': radar_fig
             }
     return visualizations
@@ -494,14 +498,41 @@ def main():
         }}
     </style>
     """
-    information_hover = {
-        'Polarity Sentiment': 'Polarity Sentiment (from TextBlob): This score ranges from -1 (very negative) to 1 (very positive) and represents the sentiment polarity of the text.',
-        'Toxicity Score': 'Toxicity Score (from BERT Toxicity): This score ranges from 0 to 1 and indicates the level of toxicity in the comment, with higher scores representing more toxic content.',
-        'Belief Speech': 'Belief Speech: This score ranges from 0 to 1 and measures the similarity of the comment to a vector of words representing belief-based speech, calculated using Word2Vec.',
-        'Factual Speech': 'Factual Speech: This score ranges from 0 to 1 and measures the similarity of the comment to a vector of words representing factual speech, calculated using Word2Vec.',
-        'Controversiality': 'Controversiality: This score is based on Reddit\'s definition and is binary [0, 1], indicating if the comment is controversial within the Reddit community.'
-    }
 
+    information_hover = {
+        'Polarity Sentiment Score': (
+            'Polarity Sentiment Score (from RoBERTa Sentiment): This score ranges from -1 (very negative) to 1 (very positive) '
+            'and captures the overall sentiment polarity of the comment.'
+        ),
+        'Toxicity Score': (
+            'Toxicity Score (from BERT Toxicity classifier): Probability (0 to 1) that the comment contains toxic or harmful language.'
+        ),
+        'Severe Toxicity Score': (
+            'Severe Toxicity Score (from BERT Toxicity classifier): Probability (0 to 1) that the comment is highly toxic or severely harmful.'
+        ),
+        'Obscenity Score': (
+            'Obscenity Score (from BERT Toxicity classifier): Probability (0 to 1) that the comment contains obscene or profane language.'
+        ),
+        'Threat Score': (
+            'Threat Score (from BERT Toxicity classifier): Probability (0 to 1) that the comment includes threats or intimidation.'
+        ),
+        'Insult Score': (
+            'Insult Score (from BERT Toxicity classifier): Probability (0 to 1) that the comment contains insults or derogatory language.'
+        ),
+        'Identity Hate Score': (
+            'Identity Hate Score (from BERT Toxicity classifier): Probability (0 to 1) that the comment contains hate speech toward identity groups.'
+        ),
+        'Belief Speech Similarity': (
+            'Belief Speech Similarity (from Word2Vec-based cosine similarity): Measures how closely the comment matches belief-based language patterns. Ranges from 0 (not belief-driven) to 1 (strong belief expression).'
+        ),
+        'Factual Speech Similarity': (
+            'Factual Speech Similarity (from Word2Vec-based cosine similarity): Measures how closely the comment matches factual, objective language. Ranges from 0 (non-factual) to 1 (highly factual).'
+        ),
+        'Emotionality Score': (
+            'Emotionality Score (from Word2Vec projection): Measures the emotional tone of the comment, with higher scores indicating more emotional content. Ranges from 0 to 1.'
+        )
+    }
+    
     st.markdown(f"<h1 style='text-align: center; color: {text_color};'>"
                 "<span style='color: darkblue;'>Pro-Israel</span> VS. "
                 "<span style='color: green;'>Pro-Palestine</span> Behavior on Social Media</h1>",
@@ -509,7 +540,7 @@ def main():
     st.markdown(f"<h2 style='text-align: center; color: {text_color};'>Regarding the Israel-Gaza War (2023-2024)</h2>",
                 unsafe_allow_html=True)
 
-    df = load_and_process_data(ZIP_FILE_PATH, FILE_NAME)
+    df = load_and_process_data(FILE_PATH)
     print(df.columns)
     pro_israel_score = df[df['Affiliation'] == 'Pro-Israel']['Score'].mean()
     pro_palestine_score = df[df['Affiliation'] == 'Pro-Palestine']['Score'].mean()
@@ -525,9 +556,9 @@ def main():
 
     with col2:
         pie_fig = pie_chart(data_dict = {
-        'Pro-Israel': 5964,
-        'Pro-Palestine': 3823,
-        'Unclassified': 11583})
+        'Pro-Israel': 440587,
+        'Pro-Palestine': 407135,
+        'Unclassified': 1850208})
         st.plotly_chart(pie_fig, use_container_width=True)
 
     with col3:
@@ -543,13 +574,11 @@ def main():
         <p style='font-size: medium;'>
             <b>ℹ️ Note:</b><br>
             Comments are classified into Pro-Israel and Pro-Palestine groups using a trained classifier. 
-            More than 50% of the comments are classified as 'Unidentified', meaning their tendency towards a political
+            More than 65% of the comments are classified as 'Unidentified', meaning their tendency towards a political
             affiliation is not clear. These comments are not shown here. 
         </p>
     </div>
     """, unsafe_allow_html=True)
-
-    # df = balanced_sample(df, 'Affiliation')
 
     visualizations = precompute_visualizations(df)
 
@@ -557,7 +586,7 @@ def main():
     st.markdown(select_box_css, unsafe_allow_html=True)
 
     # Create the select box for Sub-Topic
-    subtopics = ['Overall'] + df['Sub_Topics'].explode().unique().tolist()
+    subtopics = ['Overall'] + df['Topics'].explode().unique().tolist()
     selected_subtopic = st.selectbox('Select Sub-Topic', subtopics)
 
     # Create the select box for Feature with a label
@@ -572,16 +601,16 @@ def main():
 
     col1, empty_col, col2 = st.columns([1, 0.05, 1])
     with col1:
-        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Average {selected_feature} by SubTopic</h3>",
+        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Average {selected_feature} by Topic</h3>",
                     unsafe_allow_html=True)
         st.plotly_chart(visualizations[selected_subtopic][selected_feature]['radar'], use_container_width=True)
 
     with col2:
-        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>{selected_feature} Distribution for SubTopic: '{selected_subtopic}'</h3>",
+        st.markdown(f"<h3 style='text-align: center; color: {text_color};'>{selected_feature} Distribution for Topic: '{selected_subtopic}'</h3>",
                     unsafe_allow_html=True)
-        st.plotly_chart(visualizations[selected_subtopic][selected_feature]['sentiment_histogram'], use_container_width=True)
+        st.plotly_chart(visualizations[selected_subtopic][selected_feature]['histogram'], use_container_width=True)
 
-    st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Factual vs Emotional Speech by Affiliation for SubTopic '{selected_subtopic}'</h3>",
+    st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Factual vs Emotional Speech by Affiliation for Topic '{selected_subtopic}'</h3>",
                 unsafe_allow_html=True)
     st.plotly_chart(visualizations[selected_subtopic][selected_feature]['heatmap'], use_container_width=True)
  
@@ -591,11 +620,11 @@ if __name__ == "__main__":
     print("📄 Files in directory:", os.listdir())
 
     # Ensure the dataset exists
-    if not os.path.exists(ZIP_FILE_PATH):
-        print(f"🚨 ERROR: {ZIP_FILE_PATH} not found!")
+    if not os.path.exists(FILE_PATH):
+        print(f"🚨 ERROR: {FILE_PATH} not found!")
 
     # Load data (for validation)
-    df = load_and_process_data(ZIP_FILE_PATH, FILE_NAME)
+    df = load_and_process_data(FILE_PATH)
 
     # Debug: Print column names
     print("🧩 DataFrame columns:", df.columns.tolist())
