@@ -2,9 +2,11 @@ import os
 import gdown
 import pandas as pd
 import numpy as np
-import re
+import ast
+from datetime import datetime
 import warnings
 import streamlit as st
+import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
@@ -18,19 +20,18 @@ DOWNLOAD_URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
 if not os.path.exists(FILE_PATH):
     os.makedirs(os.path.dirname(FILE_PATH), exist_ok=True)
-    print("Downloading CSV from Google Drive...")
-    gdown.download(DOWNLOAD_URL, FILE_PATH, quiet=False)
-
-# Function to parse the Topics string
-def parse_subtopics(subtopics_str):
-    '''
-    Fix subtopics column to a workable format.
-    '''
-    if isinstance(subtopics_str, str):
-        subtopics = re.sub(r'[{}]', '', subtopics_str).split(', ')
-        subtopics = subtopics = [subtopic.strip("'").capitalize() for subtopic in subtopics]
-        return set(subtopics) if subtopics else set()
-    return set()
+    
+    with st.status("📥 Downloading data from Google Drive... Please wait (~3 min).", expanded=True) as status:
+        try:
+            gdown.download(DOWNLOAD_URL, FILE_PATH, quiet=False)
+            st.success(f"✅ Download complete.")
+            status.update(label="✅ File ready.", state="complete")
+        except Exception as e:
+            st.error(f"❌ Download failed: {e}")
+            status.update(label="❌ Download failed.", state="error")
+            st.stop()
+else:
+    st.info(f"📄 Using cached file: `{FILE_PATH}`")
 
 
 def radar(data, column):   
@@ -39,6 +40,7 @@ def radar(data, column):
     data = data[data['Topics'].apply(bool)]
 
     # Explode the data to have one row per subtopic
+    data['Topics'] = data['Topics'].apply(str_to_list)
     exploded_data = data.explode('Topics')
     exploded_data = exploded_data.dropna(subset=['Topics'])
 
@@ -53,9 +55,17 @@ def radar(data, column):
     all_subtopics = set(pro_israel_data['Topics']).union(set(pro_palestine_data['Topics']))
     for subtopic in all_subtopics:
         if subtopic not in pro_israel_data['Topics'].values:
-            pro_israel_data = pro_israel_data.append({'Affiliation': 'Pro-Israel', 'Topics': subtopic, column: 0}, ignore_index=True)
+            pro_israel_data = pd.concat([pro_israel_data, pd.DataFrame([{
+                'Affiliation': 'Pro-Israel',
+                'Topics': subtopic,
+                column: 0
+            }])], ignore_index=True)
         if subtopic not in pro_palestine_data['Topics'].values:
-            pro_palestine_data = pro_palestine_data.append({'Affiliation': 'Pro-Palestine', 'Topics': subtopic, column: 0}, ignore_index=True)
+            pro_palestine_data = pd.concat([pro_palestine_data, pd.DataFrame([{
+                'Affiliation': 'Pro-Palestine',
+                'Topics': subtopic,
+                column: 0
+            }])], ignore_index=True)
 
     # Sort by Subtopics to ensure consistency
     pro_israel_data = pro_israel_data.sort_values(by='Topics')
@@ -127,8 +137,13 @@ def histogram(data, selected_subtopic, column):
     
     # Create subset of the data based on subtopic
     if selected_subtopic != "Overall":
+        data['Topics'] = data['Topics'].apply(str_to_list)
         data = data.explode('Topics')
         data = data[data['Topics'] == selected_subtopic]
+    
+    # Guard from edge cases
+    if data.empty or data[column].dropna().empty:
+        return go.Figure()
     
     # Define bins for scores. 10 bins in the viz
     # get the boundries per score 
@@ -231,10 +246,89 @@ def histogram(data, selected_subtopic, column):
     return fig
 
 
+def trend(data, selected_subtopic, column):
+    data = data.copy()
+    data = data[data['Topics'].apply(bool)]
+    
+    # Create subset of the data based on subtopic
+    if selected_subtopic != "Overall":
+        data['Topics'] = data['Topics'].apply(str_to_list)
+        data = data.explode('Topics')
+        data = data[data['Topics'] == selected_subtopic]
+    
+    # Guard from edge cases
+    if data.empty or data[column].dropna().empty:
+        return go.Figure()
+    
+    data['created_time'] = pd.to_datetime(data['created_time'])
+    data['month'] = data['created_time'].dt.to_period('M').dt.to_timestamp()
+
+    grouped = data.groupby(['month', 'Affiliation'])[column].mean().reset_index()
+
+    fig = px.line(
+        grouped,
+        x='month',
+        y=column,
+        color='Affiliation',
+        color_discrete_map={
+            'Pro-Israel': '#003f5c',
+            'Pro-Palestine': '#2f9e44'
+        },
+        markers=True,
+        line_shape='spline'
+    )
+
+    fig.update_layout(
+        title_text="",
+        xaxis_title='Month',
+        yaxis_title=f'Average {column}',
+        title_x=0.5,
+        plot_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(
+            tickformat="%b\n%Y",  # e.g., Jan\n2025
+            dtick="M1",           # force monthly ticks
+            tickfont=dict(size=10, color="#454A4A")
+        )
+    )
+
+    # Timeline events
+    events = [
+        ("Oct 7\nAttack", datetime(2023, 10, 7)),
+        ("First\nCeasefire", datetime(2023, 11, 24)),
+        ("Rafah\nOffensive", datetime(2024, 5, 7)),
+        ("Beeper\nOperation", datetime(2024, 9, 17)),
+        ("Sinwar\nAssassination", datetime(2024, 10, 17)),
+    ]
+
+    for label, event_date in events:
+        # Add vertical line
+        fig.add_vline(
+            x=event_date,
+            line_width=1,
+            line_dash="dot",
+            line_color="gray"
+        )
+
+        # Add an invisible scatter point for hover text
+        fig.add_trace(go.Scatter(
+            x=[event_date],
+            y=[grouped[column].max()],  # Place at top of visible y range
+            mode='markers',
+            marker=dict(color='red', size=6, symbol='line-ns-open'),
+            name=label,
+            hovertemplate=f"{label}<br>Date: {event_date.strftime('%Y-%m-%d')}<extra></extra>",
+            showlegend=False
+        ))
+
+    fig.update_layout(legend_title_text="Affiliation")
+    return fig
+
+
 def heatmap(df, subtopic):
     data = df.copy()
 
     if subtopic != "Overall":
+        data['Topics'] = data['Topics'].apply(str_to_list)
         data = data.explode('Topics')
         data = data[data['Topics'] == subtopic]
 
@@ -377,16 +471,64 @@ def pie_chart(data_dict):
     return fig
 
 
+# Function to parse the Topics string
+def list_to_str(topics):
+    """Convert a list to a string for storage."""
+    return str(topics if isinstance(topics, list) else [])
+
+
+def str_to_list(topics_str):
+    """Convert a stringified list (e.g., "[...]" or "[]") to a Python list."""
+    if isinstance(topics_str, list):
+        return topics_str
+    if isinstance(topics_str, str) and topics_str.strip().startswith('['):
+        try:
+            return ast.literal_eval(topics_str)
+        except (ValueError, SyntaxError):
+            return []
+    return []
+
+
+def remove_unbalanced_subtopics(df):
+    """
+    Remove subtopics that appear only in one affiliation group.
+    Operates in-place on the 'Topics' column, assuming it's a list of topics.
+    """
+    df = df.copy()
+    df = df[df['Topics'].apply(bool)]
+    df['Topics'] = df['Topics'].apply(str_to_list)
+    exploded = df.explode('Topics')
+
+    # Count unique affiliations per topic
+    affiliation_counts = exploded.groupby('Topics')['Affiliation'].nunique()
+
+    # Keep only topics appearing in both groups
+    valid_topics = affiliation_counts[affiliation_counts > 1].index
+
+    # Filter the original DataFrame
+    df['Topics'] = df['Topics'].apply(lambda topics: [t for t in topics if t in valid_topics])
+
+    # Optionally, drop rows that now have no topics left
+    df = df[df['Topics'].apply(bool)]
+
+    return df
+
+
 @st.cache_data
-def load_and_process_data(csv_filepath):
+def load_and_process_data(csv_filepath, sample=None):
     '''
     Pre-process the data, and cache to save calculations.
+    Includes validation on Topics column format.
+
+    sample (int): For local tests on small subsets of data.
     '''
     try:
         # Read CSV
         df = pd.read_csv(csv_filepath, index_col=None, on_bad_lines='skip')
+        if sample:
+            df = df.sample(n=sample, random_state=42)
 
-        # Map columns to new (presentable) names
+        # Keep only relevant columns and rename
         columns_to_keep = ["comment_id", "created_time", "score", "predicted_label", "toxic", "severe_toxic",
                            "obscene", "threat", "insult", "identity_hate", "sentiment_score", "factual_score", "belief_score",
                            "emotionality_score", "super_topics"]
@@ -405,14 +547,33 @@ def load_and_process_data(csv_filepath):
             "belief_score": "Belief Speech Similarity",
             "emotionality_score": "Emotionality Score",
             "super_topics": "Topics"
-            })
-        
-        # Process the DataFrame
-        df['Topics'] = df['Topics'].apply(parse_subtopics)
-        valid_affiliations = {'Pro-Israel', 'Pro-Palestine'}
-        df = df[df['Affiliation'].isin(valid_affiliations)]
+        }, inplace=True)
+        print("✅ Renamed columns:", df.columns.tolist())
 
-                # Convert all numeric columns
+        # Ensure Topics are proper lists
+        df['Topics'] = df['Topics'].apply(str_to_list)
+
+        # Validate Topics column: all rows must be lists
+        if df['Topics'].isnull().any():
+            raise ValueError("Some rows in 'Topics' are null after parsing.")
+        if not df['Topics'].apply(lambda x: isinstance(x, list)).all():
+            raise ValueError("Non-list values found in 'Topics'.")
+        if df['Topics'].apply(len).eq(0).all():
+            raise ValueError("All Topics lists are empty.")
+        
+        # Drop rows with empty topic lists
+        df = df[df['Topics'].apply(lambda x: len(x) > 0)].reset_index(drop=True)
+
+        # Remove subtopics that only appear for one group
+        df = remove_unbalanced_subtopics(df)
+
+        # Re-stringify Topics (for caching purposes)
+        df['Topics'] = df['Topics'].apply(list_to_str)
+
+        # Keep only valid affiliations
+        df = df[df['Affiliation'].isin({'Pro-Israel', 'Pro-Palestine'})]
+
+        # Convert numeric columns
         numeric_cols = [
             "Score", "Toxicity Score", "Severe Toxicity Score", "Obscenity Score",
             "Threat Score", "Insult Score", "Identity Hate Score", "Polarity Sentiment Score",
@@ -421,49 +582,65 @@ def load_and_process_data(csv_filepath):
         df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
 
         df = df.dropna(how='any').reset_index(drop=True)
-        df = df[df['Topics'].apply(lambda x: x != set())].reset_index(drop=True)
 
+        # Final sanity check
+        if df.empty:
+            raise ValueError("Processed DataFrame is empty after cleaning.")
+        
         return df
 
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return pd.DataFrame()  # Return an empty DataFrame on error
-
+        raise Exception(f"❌ Error loading dataset: {e}")
+    
 
 @st.cache_resource
 def precompute_visualizations(df):
     '''
     Pre-compute all visualizations to avoid heavy calculation for every filter change.
+    Displays a progress bar in the Streamlit UI.
     '''
-    subtopics = ['Overall'] + df['Topics'].explode().unique().tolist()
+    placeholder = st.empty()
+    placeholder.subheader("")  # temporarily occupies space
+
+    subtopics = ['Overall'] + sorted(set(
+    t for topics in df['Topics'].apply(str_to_list) for t in topics
+    ))
     features = [
-            "Toxicity Score",
-            "Severe Toxicity Score",
-            "Obscenity Score",
-            "Threat Score",
-            "Insult Score",
-            "Identity Hate Score",
-            "Polarity Sentiment Score",
-            "Emotionality Score",
-            "Factual Speech Similarity",
-            "Belief Speech Similarity"
-     ]
-    visualizations = {} # Create viz for every combination of subtopic and feature {'subtopic': {'feature': {'heatmap', 'histogram', 'radar'}}} 
+        "Toxicity Score", "Severe Toxicity Score", "Obscenity Score", "Threat Score",
+        "Insult Score", "Identity Hate Score", "Polarity Sentiment Score",
+        "Emotionality Score", "Factual Speech Similarity", "Belief Speech Similarity"
+    ]
+    
+    total_steps = len(features) + len(subtopics) * len(features)
+    progress_bar = st.progress(0)
+    step = 0
+
+    visualizations = {}
     radars = {}
+
     for feature in features:
-        radar_fig = radar(df, feature)
-        radars[feature] = radar_fig
+        radars[feature] = radar(df, feature)
+        step += 1
+        progress_bar.progress(step / total_steps)
+
     for subtopic in subtopics:
         visualizations[subtopic] = {}
         heatmap_fig = heatmap(df, subtopic)
         for feature in features:
             radar_fig = radars[feature]
             histogram_fig = histogram(df, subtopic, feature)
-            visualizations[subtopic][feature] = { # Store figs directly as Fig object
+            trend_fig = trend(df, subtopic, feature)
+            visualizations[subtopic][feature] = {
                 'heatmap': heatmap_fig,
                 'histogram': histogram_fig,
+                'trend': trend_fig,
                 'radar': radar_fig
             }
+            step += 1
+            progress_bar.progress(step / total_steps)
+
+    progress_bar.empty()  # remove the progress bar and place holder
+    placeholder.empty()
     return visualizations
 
 
@@ -537,11 +714,10 @@ def main():
                 "<span style='color: darkblue;'>Pro-Israel</span> VS. "
                 "<span style='color: green;'>Pro-Palestine</span> Behavior on Social Media</h1>",
                 unsafe_allow_html=True)
-    st.markdown(f"<h2 style='text-align: center; color: {text_color};'>Regarding the Israel-Gaza War (2023-2024)</h2>",
+    st.markdown(f"<h2 style='text-align: center; color: {text_color};'>Israel-Gaza War Reddit Discussions<br>(OCT 2023 - MAY 2025)</h2>",
                 unsafe_allow_html=True)
 
-    df = load_and_process_data(FILE_PATH)
-    print(df.columns)
+    df = load_and_process_data(FILE_PATH, sample=None)
     pro_israel_score = df[df['Affiliation'] == 'Pro-Israel']['Score'].mean()
     pro_palestine_score = df[df['Affiliation'] == 'Pro-Palestine']['Score'].mean()
 
@@ -574,7 +750,7 @@ def main():
         <p style='font-size: medium;'>
             <b>ℹ️ Note:</b><br>
             Comments are classified into Pro-Israel and Pro-Palestine groups using a trained classifier. 
-            More than 65% of the comments are classified as 'Unidentified', meaning their tendency towards a political
+            More than 65% of the comments are classified as 'Undefined', meaning their tendency towards a political
             affiliation is not clear. These comments are not shown here. 
         </p>
     </div>
@@ -586,8 +762,10 @@ def main():
     st.markdown(select_box_css, unsafe_allow_html=True)
 
     # Create the select box for Sub-Topic
-    subtopics = ['Overall'] + df['Topics'].explode().unique().tolist()
-    selected_subtopic = st.selectbox('Select Sub-Topic', subtopics)
+    subtopics = ['Overall'] + sorted(set(
+    t for topics in df['Topics'].apply(str_to_list) for t in topics
+    ))
+    selected_subtopic = st.selectbox('Select Topic', subtopics)
 
     # Create the select box for Feature with a label
     selected_feature = st.selectbox('Select Feature', list(information_hover.keys()))
@@ -610,6 +788,10 @@ def main():
                     unsafe_allow_html=True)
         st.plotly_chart(visualizations[selected_subtopic][selected_feature]['histogram'], use_container_width=True)
 
+    st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Trend of {selected_feature} by Affiliation for Topic '{selected_subtopic}'</h3>", 
+                unsafe_allow_html=True)
+    st.plotly_chart(visualizations[selected_subtopic][selected_feature]['trend'], use_container_width=True)
+    
     st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Factual vs Emotional Speech by Affiliation for Topic '{selected_subtopic}'</h3>",
                 unsafe_allow_html=True)
     st.plotly_chart(visualizations[selected_subtopic][selected_feature]['heatmap'], use_container_width=True)
@@ -623,14 +805,14 @@ if __name__ == "__main__":
     if not os.path.exists(FILE_PATH):
         print(f"🚨 ERROR: {FILE_PATH} not found!")
 
-    # Load data (for validation)
-    df = load_and_process_data(FILE_PATH)
+    # # Load data (for validation)
+    # df = load_and_process_data(FILE_PATH)
 
-    # Debug: Print column names
-    print("🧩 DataFrame columns:", df.columns.tolist())
+    # # Debug: Print column names
+    # print("🧩 DataFrame columns:", df.columns.tolist())
 
-    # Print first few rows to confirm data is loaded correctly
-    print(df.head())
+    # # Print first few rows to confirm data is loaded correctly
+    # print(df.head())
     
     # Now let's go!
     main()
