@@ -724,7 +724,7 @@ def main():
     # Try loading precomputed visualizations
     if not os.path.exists(VIS_ZIP_PATH):
         os.makedirs(os.path.dirname(VIS_ZIP_PATH), exist_ok=True)
-        st.warning("⚠️ Precomputed visualizations not found. Attempting to download from Drive...")
+        st.warning("📥 Downloading Precomputed visualizations from Google Drive...")
         try:
             gdown.download(VIS_ZIP_DOWNLOAD_URL, VIS_ZIP_PATH, quiet=False)
             with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
@@ -742,7 +742,7 @@ def main():
                     visualizations = pickle.load(f)
             st.success("✅ Loaded precomputed visualizations.")
         except Exception as e:
-            st.error(f"❌ Failed to load visualizations: {e}. Falling back to local computation...")
+            st.warning(f"⚠️ Failed to load visualizations: {e}. Falling back to local computation...")
             visualizations = precompute_visualizations(df)
 
 
