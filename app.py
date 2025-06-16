@@ -740,7 +740,7 @@ def main():
                     visualizations = pickle.load(f)
             st.success("✅ Downloaded and loaded visualizations from Google Drive.")
         except Exception as e:
-            st.warning("⚠️ Download failed. Falling back to local computation...")
+            st.warning(f"⚠️ Download failed with {e}. Falling back to local computation...")
             visualizations = precompute_visualizations(df)
     
     st.markdown(f"<h1 style='text-align: center; color: {text_color};'>"
