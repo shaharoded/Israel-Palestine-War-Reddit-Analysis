@@ -722,17 +722,8 @@ def main():
     df = load_and_process_data(FILE_PATH, sample=None)
 
     # Try loading precomputed visualizations
-    if os.path.exists(VIS_ZIP_PATH):
+    if not os.path.exists(VIS_ZIP_PATH):
         os.makedirs(os.path.dirname(VIS_ZIP_PATH), exist_ok=True)
-        try:
-            with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
-                with zipf.open("visualizations.pkl") as f:
-                    visualizations = pickle.load(f)
-            st.success("✅ Loaded precomputed visualizations.")
-        except Exception as e:
-            st.error(f"❌ Failed to load visualizations: {e}")
-            st.stop()
-    else:
         st.warning("⚠️ Precomputed visualizations not found. Attempting to download from Drive...")
         try:
             gdown.download(VIS_ZIP_DOWNLOAD_URL, VIS_ZIP_PATH, quiet=False)
@@ -743,7 +734,18 @@ def main():
         except Exception as e:
             st.warning(f"⚠️ Download failed with {e}. Falling back to local computation...")
             visualizations = precompute_visualizations(df)
-    
+    else:
+        st.warning("📄 Using cached visualizations...")
+        try:
+            with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
+                with zipf.open("visualizations.pkl") as f:
+                    visualizations = pickle.load(f)
+            st.success("✅ Loaded precomputed visualizations.")
+        except Exception as e:
+            st.error(f"❌ Failed to load visualizations: {e}. Falling back to local computation...")
+            visualizations = precompute_visualizations(df)
+
+
     st.markdown(f"<h1 style='text-align: center; color: {text_color};'>"
                 "<span style='color: darkblue;'>Pro-Israel</span> VS. "
                 "<span style='color: green;'>Pro-Palestine</span> Behavior on Social Media</h1>",
