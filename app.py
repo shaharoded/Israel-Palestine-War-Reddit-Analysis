@@ -723,6 +723,7 @@ def main():
 
     # Try loading precomputed visualizations
     if os.path.exists(VIS_ZIP_PATH):
+        os.makedirs(os.path.dirname(VIS_ZIP_PATH), exist_ok=True)
         try:
             with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
                 with zipf.open("visualizations.pkl") as f:
