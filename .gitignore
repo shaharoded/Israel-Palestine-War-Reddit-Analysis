@@ -1,2 +1,4 @@
 /venv
 /Data
+/__pycache__
+/Viz

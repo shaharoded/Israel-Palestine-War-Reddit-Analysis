@@ -15,6 +15,7 @@ All dataprocess codefiles are available in this repository.
 
 ```bash
 ├── app.py                                          # Streamlit dashboard app (based on processed data)
+├── main.py                                         # For developer -> create viz local cache
 ├── DatasetProcess.ipynb                            # Initial data cleaning and preparation
 ├── NLPFeatureExtraction.ipynb                      # Advanced NLP feature extraction (toxicity, sentiment, etc.)
 ├── Images/                                         # Dashboard screenshots for documentation
@@ -61,9 +62,13 @@ streamlit run app.py
 
 After running the app, Streamlit will start a local web server and open a new tab in your default web browser, displaying the dashboard. If it doesn't automatically open, you can manually navigate to the URL shown in the terminal (usually http://localhost:8501).
 
-### Push Updates to GIT
+NOTE: The `main.py` module is meant to create the vizualizations as a file that can be cached in Google Drive and then called by `app.py`, thus avoiding the immense computational resources needed to handle such a file and calculation by streamlit. Simply call:
 
-Push code updates to GitHub directly.
+```bash
+python main.py
+```
+Don't forget to upload the zip file to Google Drive and update it's `VIS_ZIP_GDRIVE_ID` in `app.py`. Ensure it's permissions are public.
+
 
 # Related Work: Stance Detection
 For users interested in classifying the political affiliation of social media comments, I recommend my related project: [Israel-Palestine Political Affiliation Text Classification](https://github.com/shaharoded/Israel-Palestine-Political-Affiliation-Text-Classification). This study focuses on building a scalable machine learning pipeline to classify comments into Pro-Israel, Pro-Palestinian, and Undefined categories, starting with an unlabeled raw dataset. The classifier leverages advanced contextual embeddings, automated tagging, and fine-tuned classification models such as SVM and XGBoost. This project serves as a complementary tool for deeper classification and benchmarking in ideological discourse analysis, and is also aplying it's predictions on this project's dataset in order to be able to create it's comparative analysis between the 2 groups (Pro-Israel vs. Pro-Palestine).

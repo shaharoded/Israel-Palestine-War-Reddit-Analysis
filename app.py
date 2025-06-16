@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore', category=pd.errors.PerformanceWarning)
 
 # Google Drive viz zip file ID
 VIS_ZIP_PATH = "Viz/visualizations.zip"
-VIS_ZIP_GDRIVE_ID = "1245"  # replace with your actual file ID
+VIS_ZIP_GDRIVE_ID = "1fxEWLwRDQztM-hWYPG293RZvDNdvoE3w"  # replace with your actual file ID
 VIS_ZIP_DOWNLOAD_URL = f"https://drive.google.com/uc?id={VIS_ZIP_GDRIVE_ID}"
 
 # Google Drive data file ID
@@ -703,11 +703,34 @@ def main():
     }
 
     # Viz acquisition block 
+    # Always load dataset (from local or download if needed)
+    if not os.path.exists(FILE_PATH):
+        os.makedirs(os.path.dirname(FILE_PATH), exist_ok=True)
+        with st.status("📥 Downloading data from Google Drive... Please wait (~3 min).", expanded=True) as status:
+            try:
+                gdown.download(DOWNLOAD_URL, FILE_PATH, quiet=False)
+                st.success("✅ Download complete.")
+                status.update(label="✅ File ready.", state="complete")
+            except Exception as e:
+                st.error(f"❌ Download failed: {e}")
+                status.update(label="❌ Download failed.", state="error")
+                st.stop()
+    else:
+        st.info(f"📄 Using cached file: `{FILE_PATH}`")
+
+    # Load and process dataset
+    df = load_and_process_data(FILE_PATH, sample=None)
+
+    # Try loading precomputed visualizations
     if os.path.exists(VIS_ZIP_PATH):
-        with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
-            with zipf.open("visualizations.pkl") as f:
-                visualizations = pickle.load(f)
-        st.success("✅ Loaded precomputed visualizations.")
+        try:
+            with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
+                with zipf.open("visualizations.pkl") as f:
+                    visualizations = pickle.load(f)
+            st.success("✅ Loaded precomputed visualizations.")
+        except Exception as e:
+            st.error(f"❌ Failed to load visualizations: {e}")
+            st.stop()
     else:
         st.warning("⚠️ Precomputed visualizations not found. Attempting to download from Drive...")
         try:
@@ -718,20 +741,6 @@ def main():
             st.success("✅ Downloaded and loaded visualizations from Google Drive.")
         except Exception as e:
             st.warning("⚠️ Download failed. Falling back to local computation...")
-            if not os.path.exists(FILE_PATH):
-                os.makedirs(os.path.dirname(FILE_PATH), exist_ok=True)
-                with st.status("📥 Downloading data from Google Drive... Please wait (~3 min).", expanded=True) as status:
-                    try:
-                        gdown.download(DOWNLOAD_URL, FILE_PATH, quiet=False)
-                        st.success("✅ Download complete.")
-                        status.update(label="✅ File ready.", state="complete")
-                    except Exception as e:
-                        st.error(f"❌ Download failed: {e}")
-                        status.update(label="❌ Download failed.", state="error")
-                        st.stop()
-            else:
-                st.info(f"📄 Using cached file: `{FILE_PATH}`")
-            df = load_and_process_data(FILE_PATH, sample=None)
             visualizations = precompute_visualizations(df)
     
     st.markdown(f"<h1 style='text-align: center; color: {text_color};'>"
