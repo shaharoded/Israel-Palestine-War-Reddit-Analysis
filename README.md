@@ -15,7 +15,7 @@ All dataprocess codefiles are available in this repository.
 
 ```bash
 ├── app.py                                          # Streamlit dashboard app (based on processed data)
-├── main.py                                         # For developer -> create viz local cache
+├── local_main.py                                   # For developer -> create viz local cache
 ├── DatasetProcess.ipynb                            # Initial data cleaning and preparation
 ├── NLPFeatureExtraction.ipynb                      # Advanced NLP feature extraction (toxicity, sentiment, etc.)
 ├── Images/                                         # Dashboard screenshots for documentation
