@@ -332,9 +332,10 @@ def heatmap(df, subtopic):
         y = subset['Belief Speech Similarity']
 
         hist, xedges, yedges = np.histogram2d(x, y, bins=[20, 20], range=[[0, 1], [0, 1]])
-        hist = hist.T
-        hist_percentile = (hist / hist.max()) * 100  # Normalize to 100%
-        hist_percentage = (hist / hist.sum()) * 100  # Percentage of total samples in each bin
+        hist = hist.T  # Transpose for correct plot orientation
+        hist_sum = hist.sum()
+        hist_percentile = (hist / hist.max()) * 100 if hist.max() > 0 else np.zeros_like(hist)
+        hist_percentage = (hist / hist_sum) * 100 if hist_sum > 0 else np.zeros_like(hist)
 
         trace = go.Heatmap(
             x=xedges,
@@ -343,13 +344,13 @@ def heatmap(df, subtopic):
             colorscale=color,
             showscale=False,
             name=f'{affiliation}',
+            customdata=hist_percentage,  # Add custom data for the hover info
             hovertemplate=(
                 'Factual Speech Similarity: %{x}<br>'
                 'Belief Speech Similarity: %{y}<br>'
                 'Density Measure (Percentile): %{z:.2f}%<br>'
                 'Percent of Group: %{customdata:.2f}%<extra></extra>'
             ),
-            customdata=hist_percentage  # Add custom data for the hover info
         )
         return trace
 
@@ -523,7 +524,7 @@ def load_and_process_data(csv_filepath, sample=None):
         # Keep only relevant columns and rename
         columns_to_keep = ["comment_id", "created_time", "score", "predicted_label", "toxic", "severe_toxic",
                            "obscene", "threat", "insult", "identity_hate", "sentiment_score", "factual_score", "belief_score",
-                           "emotionality_score", "super_topics"]
+                           "emotionality_score", "selected_topics"]
         df = df[columns_to_keep]
         df.rename(columns={
             "score": "Score", 
@@ -538,7 +539,7 @@ def load_and_process_data(csv_filepath, sample=None):
             "factual_score": "Factual Speech Similarity",
             "belief_score": "Belief Speech Similarity",
             "emotionality_score": "Emotionality Score",
-            "super_topics": "Topics"
+            "selected_topics": "Topics"
         }, inplace=True)
         print("✅ Renamed columns:", df.columns.tolist())
 
@@ -610,11 +611,19 @@ def precompute_visualizations(df):
     visualizations = {}
     radars = {}
 
+    # Compute pie-chart
+    pie_fig = pie_chart(data_dict = {
+        'Pro-Israel': 440587,
+        'Pro-Palestine': 407135,
+        'Unclassified': 1850208})
+
+    # Precompute radar plots once per feature
     for feature in features:
         radars[feature] = radar(df, feature)
         step += 1
         progress_bar.progress(step / total_steps)
 
+    # Compute plots based on sub-topic
     for subtopic in subtopics:
         visualizations[subtopic] = {}
         heatmap_fig = heatmap(df, subtopic)
@@ -633,6 +642,16 @@ def precompute_visualizations(df):
 
     progress_bar.empty()  # remove the progress bar and place holder
     placeholder.empty()
+
+    # Add score averages to the visualization dictionary
+    pro_israel_score = df[df['Affiliation'] == 'Pro-Israel']['Score'].mean()
+    pro_palestine_score = df[df['Affiliation'] == 'Pro-Palestine']['Score'].mean()
+    visualizations["_meta"] = {
+        "pro_israel_score": pro_israel_score,
+        "pro_palestine_score": pro_palestine_score,
+        "pie": pie_fig
+    }
+
     return visualizations
 
 
@@ -703,47 +722,50 @@ def main():
     }
 
     # Viz acquisition block 
-    # Always load dataset (from local or download if needed)
-    if not os.path.exists(FILE_PATH):
-        os.makedirs(os.path.dirname(FILE_PATH), exist_ok=True)
-        with st.status("📥 Downloading data from Google Drive... Please wait (~3 min).", expanded=True) as status:
-            try:
-                gdown.download(DOWNLOAD_URL, FILE_PATH, quiet=False)
-                st.success("✅ Download complete.")
-                status.update(label="✅ File ready.", state="complete")
-            except Exception as e:
-                st.error(f"❌ Download failed: {e}")
-                status.update(label="❌ Download failed.", state="error")
-                st.stop()
-    else:
-        st.info(f"📄 Using cached file: `{FILE_PATH}`")
+    # Try loading precomputed visualizations FIRST
+    visualizations = None
 
-    # Load and process dataset
-    df = load_and_process_data(FILE_PATH, sample=None)
-
-    # Try loading precomputed visualizations
-    if not os.path.exists(VIS_ZIP_PATH):
-        os.makedirs(os.path.dirname(VIS_ZIP_PATH), exist_ok=True)
-        st.warning("📥 Downloading Precomputed visualizations from Google Drive...")
+    if os.path.exists(VIS_ZIP_PATH):
+        st.success("📦 Using locally cached visualizations.")
         try:
+            with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
+                with zipf.open("visualizations.pkl") as f:
+                    visualizations = pickle.load(f)
+        except Exception as e:
+            st.warning(f"⚠️ Failed to load local visualizations: {e}. Will attempt fallback...")
+
+    # If no valid local visualizations, try downloading from Google Drive
+    if visualizations is None:
+        st.warning("📥 Attempting to download visualizations from Google Drive...")
+        try:
+            os.makedirs(os.path.dirname(VIS_ZIP_PATH), exist_ok=True)
             gdown.download(VIS_ZIP_DOWNLOAD_URL, VIS_ZIP_PATH, quiet=False)
             with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
                 with zipf.open("visualizations.pkl") as f:
                     visualizations = pickle.load(f)
             st.success("✅ Downloaded and loaded visualizations from Google Drive.")
         except Exception as e:
-            st.warning(f"⚠️ Download failed with {e}. Falling back to local computation...")
-            visualizations = precompute_visualizations(df)
-    else:
-        st.warning("📄 Using cached visualizations...")
-        try:
-            with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
-                with zipf.open("visualizations.pkl") as f:
-                    visualizations = pickle.load(f)
-            st.success("✅ Loaded precomputed visualizations.")
-        except Exception as e:
-            st.warning(f"⚠️ Failed to load visualizations: {e}. Falling back to local computation...")
-            visualizations = precompute_visualizations(df)
+            st.error(f"❌ Download failed: {e}. Falling back to local computation.")
+
+    # If both local and remote visualizations failed, load + compute
+    if visualizations is None:
+        # Load dataset (only now)
+        if not os.path.exists(FILE_PATH):
+            os.makedirs(os.path.dirname(FILE_PATH), exist_ok=True)
+            with st.status("📥 Downloading data from Google Drive... Please wait (~3 min).", expanded=True) as status:
+                try:
+                    gdown.download(DOWNLOAD_URL, FILE_PATH, quiet=False)
+                    st.success("✅ Download complete.")
+                    status.update(label="✅ File ready.", state="complete")
+                except Exception as e:
+                    st.error(f"❌ Download failed: {e}")
+                    status.update(label="❌ Download failed.", state="error")
+                    st.stop()
+        else:
+            st.info(f"📄 Using cached file: `{FILE_PATH}`")
+
+        df = load_and_process_data(FILE_PATH, sample=None)
+        visualizations = precompute_visualizations(df)
 
 
     st.markdown(f"<h1 style='text-align: center; color: {text_color};'>"
@@ -753,8 +775,8 @@ def main():
     st.markdown(f"<h2 style='text-align: center; color: {text_color};'>Israel-Gaza War Reddit Discussions<br>(OCT 2023 - MAY 2025)</h2>",
                 unsafe_allow_html=True)
 
-    pro_israel_score = df[df['Affiliation'] == 'Pro-Israel']['Score'].mean()
-    pro_palestine_score = df[df['Affiliation'] == 'Pro-Palestine']['Score'].mean()
+    pro_israel_score = visualizations.get("_meta").get("pro_israel_score")
+    pro_palestine_score = visualizations.get("_meta").get("pro_palestine_score")
 
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col1:
@@ -766,10 +788,7 @@ def main():
             "</div>", unsafe_allow_html=True)
 
     with col2:
-        pie_fig = pie_chart(data_dict = {
-        'Pro-Israel': 440587,
-        'Pro-Palestine': 407135,
-        'Unclassified': 1850208})
+        pie_fig = visualizations.get("_meta").get('pie')
         st.plotly_chart(pie_fig, use_container_width=True)
 
     with col3:
@@ -795,9 +814,7 @@ def main():
     st.markdown(select_box_css, unsafe_allow_html=True)
 
     # Create the select box for Sub-Topic
-    subtopics = ['Overall'] + sorted(set(
-    t for topics in df['Topics'].apply(str_to_list) for t in topics
-    ))
+    subtopics = [k for k in visualizations.keys() if k != "_meta"]
     selected_subtopic = st.selectbox('Select Topic', subtopics)
 
     # Create the select box for Feature with a label
@@ -828,7 +845,7 @@ def main():
     st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Factual vs Emotional Speech by Affiliation for Topic '{selected_subtopic}'</h3>",
                 unsafe_allow_html=True)
     st.plotly_chart(visualizations[selected_subtopic][selected_feature]['heatmap'], use_container_width=True)
- 
+
         
 if __name__ == "__main__":
     print("📂 Current directory:", os.getcwd())
