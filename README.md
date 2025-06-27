@@ -63,10 +63,10 @@ streamlit run app.py
 
 After running the app, Streamlit will start a local web server and open a new tab in your default web browser, displaying the dashboard. If it doesn't automatically open, you can manually navigate to the URL shown in the terminal (usually http://localhost:8501).
 
-NOTE: The `main.py` module is meant to create the vizualizations as a file that can be cached in Google Drive and then called by `app.py`, thus avoiding the immense computational resources needed to handle such a file and calculation by streamlit. Simply call:
+NOTE: The `local_main.py` module is meant to create the vizualizations as a file that can be cached in Google Drive and then called by `app.py`, thus avoiding the immense computational resources needed to handle such a file and calculation by streamlit. Simply call:
 
 ```bash
-python main.py
+python local_main.py
 ```
 Don't forget to upload the zip file to Google Drive and update it's `VIS_ZIP_GDRIVE_ID` in `app.py`. Ensure it's permissions are public.
 
