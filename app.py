@@ -364,14 +364,17 @@ def heatmap(df, subtopic):
         y = subset['Belief Speech Similarity']
 
         hist, xedges, yedges = np.histogram2d(x, y, bins=[20, 20], range=[[0, 1], [0, 1]])
+        x_centres = (xedges[:-1] + xedges[1:]) / 2   # length 20
+        y_centres = (yedges[:-1] + yedges[1:]) / 2   # length 20
         hist = hist.T  # Transpose for correct plot orientation
         hist_sum = hist.sum()
         hist_percentile = (hist / hist.max()) * 100 if hist.max() > 0 else np.zeros_like(hist)
         hist_percentage = (hist / hist_sum) * 100 if hist_sum > 0 else np.zeros_like(hist)
+        hist_percentage = hist_percentage.tolist()
 
         trace = go.Heatmap(
-            x=xedges,
-            y=yedges,
+            x=x_centres,
+            y=y_centres,
             z=hist_percentile,
             colorscale=color,
             showscale=False,
@@ -776,14 +779,14 @@ def main():
     # Try loading precomputed visualizations FIRST
     visualizations = None
 
-    # if os.path.exists(VIS_ZIP_PATH):
-    #     st.success("📦 Using locally cached visualizations.")
-    #     try:
-    #         with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
-    #             with zipf.open("visualizations.pkl") as f:
-    #                 visualizations = pickle.load(f)
-    #     except Exception as e:
-    #         st.warning(f"⚠️ Failed to load local visualizations: {e}. Will attempt fallback...")
+    if os.path.exists(VIS_ZIP_PATH):
+        st.success("📦 Using locally cached visualizations.")
+        try:
+            with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
+                with zipf.open("visualizations.pkl") as f:
+                    visualizations = pickle.load(f)
+        except Exception as e:
+            st.warning(f"⚠️ Failed to load local visualizations: {e}. Will attempt fallback...")
 
     # If no valid local visualizations, try downloading from Google Drive
     if visualizations is None:
