@@ -7,7 +7,7 @@ The original dataset is available on [this link](https://www.kaggle.com/datasets
 The dashboard is available on [this link](https://israel-palestine-war-reddit-comments-analysis.streamlit.app/) (app might turn to sleep if wasn't used for a while).
 
 The processed dataset, ready for analysis, and the original dataset snapshot used for this research are available in [this link](https://drive.google.com/drive/u/0/folders/1oNywMWfqNQbF2lvMqL63e5gSun5hbrOE).
-You will also find there precomputed visualizations that are loaded to the app, due to streamlit's resource constraint.
+You will also find there the precomputed visualizations that are loaded to the app, due to streamlit's resource constraint.
 
 All dataprocess codefiles are available in this repository.
 
@@ -48,7 +48,6 @@ Ensure you have Python installed on your machine. You will also need to install 
 ```bash
 python -m venv venv
 venv\Scripts\activate
-pip install --upgrade pip
 pip install -r requirements.txt
 ```
 In additions, be sure to open a local folder, where you'll keep the data zip file, with the app.py file and the requirements file.
@@ -72,5 +71,5 @@ Don't forget to upload the zip file to Google Drive and update it's `VIS_ZIP_GDR
 
 
 # Related Work: Stance Detection
-For users interested in classifying the political affiliation of social media comments, I recommend my related project: [Israel-Palestine Political Affiliation Text Classification](https://github.com/shaharoded/Israel-Palestine-Political-Affiliation-Text-Classification). This study focuses on building a scalable machine learning pipeline to classify comments into Pro-Israel, Pro-Palestinian, and Undefined categories, starting with an unlabeled raw dataset. The classifier leverages advanced contextual embeddings, automated tagging, and fine-tuned classification models such as SVM and XGBoost. This project serves as a complementary tool for deeper classification and benchmarking in ideological discourse analysis, and is also aplying it's predictions on this project's dataset in order to be able to create it's comparative analysis between the 2 groups (Pro-Israel vs. Pro-Palestine).
+For users interested in classifying the political affiliation of social media comments, I recommend my related project: [Israel-Palestine Political Affiliation Text Classification](https://github.com/shaharoded/Israel-Palestine-Political-Affiliation-Text-Classification). This study focuses on building a scalable Deep Learning and Machine Learning pipeline to classify comments into Pro-Israel, Pro-Palestinian, and Undefined categories, starting with the unlabeled raw dataset from Kaggle. The classifier leverages advanced contextual embeddings using a fine tuned DistilBERT, automated tagging, and optimized classification models such as SVM and XGBoost. This project serves as a complementary tool for deeper classification and benchmarking in ideological discourse analysis, and the pipeline developed there is also used to classify the comment's stance, which is the key to this dashboard comparative analysis between the 2 groups (Pro-Israel vs. Pro-Palestine).
 
