@@ -140,7 +140,7 @@ def radar(data, column):
         hoverlabel=dict(font_size=14, font_color='#454A4A'),  # Increased font size and updated color for hover text
         width=400,  # Set the figure width
         height=400,  # Set the figure height
-        margin=dict(t=15, b=15, l=80, r=80)  # Adjusted margins
+        margin=dict(t=10, b=10, l=50, r=50)  # Adjusted margins
     )
 
     return fig
@@ -233,29 +233,30 @@ def histogram(data, selected_subtopic, column):
     fig.update_layout(
         showlegend=True,
         legend=dict(
-            x=0.5, 
-            y=1, 
-            traceorder='normal',
-            font=dict(
-                size=12,
-                color='#454A4A'
-            ),
-            bgcolor='rgba(255, 255, 255, 0.5)'
+            orientation="h",      # <-- side-by-side items
+            yanchor="bottom",
+            y=1.08,               # a bit above the top axis
+            xanchor="center",
+            x=0.5,
+            font=dict(size=16, color="#454A4A")
         ),
+
         xaxis=dict(
-            title=dict(text='Feature Distribution', 
-            font=dict(color='#454A4A')),    # Change x-axis text color
-            tickfont=dict(color='#454A4A')
+            title="",            
+            tickfont=dict(color="#454A4A", size=12) 
         ),
+
+        # enlarge y-axis tick labels
         yaxis=dict(
-            title=dict(text='Percentage of Comments', font=dict(color='#454A4A')),
-            tickfont=dict(color='#454A4A'),  # Change y-axis text color
-            tickvals=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-            ticktext=["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"]
+            title=dict(text="Percentage of Comments", font=dict(color="#454A4A")),
+            tickfont=dict(color="#454A4A", size=12),
+            tickvals=[0,10,20,30,40,50,60,70,80,90,100],
+            ticktext=["0%","10%","20%","30%","40%","50%","60%","70%","80%","90%","100%"]
         ),
-        barmode='group',  # Side-by-side bars
-        margin=dict(t=10, b=15, l=50, r=50),  # Adjusted margins
-        hoverlabel=dict(font_size=14, font_color='#454A4A'),
+
+        barmode="group",
+        margin=dict(t=10, b=0, l=50, r=50),
+        hoverlabel=dict(font_size=14, font_color="#454A4A"),
         height=300
     )
     return fig
@@ -775,14 +776,14 @@ def main():
     # Try loading precomputed visualizations FIRST
     visualizations = None
 
-    # if os.path.exists(VIS_ZIP_PATH):
-    #     st.success("📦 Using locally cached visualizations.")
-    #     try:
-    #         with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
-    #             with zipf.open("visualizations.pkl") as f:
-    #                 visualizations = pickle.load(f)
-    #     except Exception as e:
-    #         st.warning(f"⚠️ Failed to load local visualizations: {e}. Will attempt fallback...")
+    if os.path.exists(VIS_ZIP_PATH):
+        st.success("📦 Using locally cached visualizations.")
+        try:
+            with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
+                with zipf.open("visualizations.pkl") as f:
+                    visualizations = pickle.load(f)
+        except Exception as e:
+            st.warning(f"⚠️ Failed to load local visualizations: {e}. Will attempt fallback...")
 
     # If no valid local visualizations, try downloading from Google Drive
     if visualizations is None:
