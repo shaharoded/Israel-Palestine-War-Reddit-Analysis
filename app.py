@@ -1,4 +1,5 @@
 import os
+import re
 import gdown
 import pandas as pd
 import numpy as np
@@ -26,7 +27,23 @@ FILE_ID = "1J7rrdBLdve0JM0yGWwygrs-i1dB6cC4q"
 DOWNLOAD_URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
 
-def radar(data, column):   
+def radar(data, column):
+    def wrap_topic(label: str, max_word=9, split_at=7):
+        """
+        • Replace spaces, hyphens, slashes with line-breaks (<br>)
+        • If any remaining word segment still runs longer than `max_word`,
+        split after `split_at` chars, add a hyphen, drop to next line.
+        """
+        # first pass: break on delimiters
+        parts = re.sub(r"[ \-/]", "<br>", label).split("<br>")
+
+        wrapped = []
+        for part in parts:
+            while len(part) > max_word:
+                wrapped.append(part[:split_at] + "-")
+                part = part[split_at:]
+            wrapped.append(part)
+        return "<br>".join(wrapped)   
     # Preprocess the data
     data = data.copy()
     data = data[data['Topics'].apply(bool)]
@@ -62,10 +79,16 @@ def radar(data, column):
     # Sort by Subtopics to ensure consistency
     pro_israel_data = pro_israel_data.sort_values(by='Topics')
     pro_palestine_data = pro_palestine_data.sort_values(by='Topics')
-    subtopics_israel = pro_israel_data['Topics'].tolist()
-    values_israel = pro_israel_data[column].tolist()
-    subtopics_palestine = pro_palestine_data['Topics'].tolist()
-    values_palestine = pro_palestine_data[column].tolist()
+
+    subtopics_israel_raw      = pro_israel_data['Topics'].tolist()
+    subtopics_palestine_raw   = pro_palestine_data['Topics'].tolist()
+
+    # wrap long labels → line-break friendly versions
+    subtopics_israel     = [wrap_topic(t) for t in subtopics_israel_raw]
+    subtopics_palestine  = [wrap_topic(t) for t in subtopics_palestine_raw]
+
+    values_israel        = pro_israel_data[column].tolist()
+    values_palestine     = pro_palestine_data[column].tolist()
 
     # Create DataFrames for Plotly
     df_israel = pd.DataFrame(dict(
@@ -115,9 +138,9 @@ def radar(data, column):
             )
         ),
         hoverlabel=dict(font_size=14, font_color='#454A4A'),  # Increased font size and updated color for hover text
-        width=300,  # Set the figure width
-        height=300,  # Set the figure height
-        margin=dict(t=0, b=15, l=50, r=50)  # Adjusted margins
+        width=400,  # Set the figure width
+        height=400,  # Set the figure height
+        margin=dict(t=15, b=15, l=80, r=80)  # Adjusted margins
     )
 
     return fig
@@ -280,6 +303,14 @@ def trend(data, selected_subtopic, column):
             tickformat="%b\n%Y",  # e.g., Jan\n2025
             dtick="M1",           # force monthly ticks
             tickfont=dict(size=10, color="#454A4A")
+        ),
+        legend_title_text="Affiliation",                # ← keep this
+        legend=dict(                                   # ← ADD this block
+        orientation="h",   # horizontal
+        yanchor="bottom",
+        y=1.02,            # a bit above the top axis
+        xanchor="center",
+        x=0.5
         )
     )
 
@@ -287,9 +318,10 @@ def trend(data, selected_subtopic, column):
     events = [
         ("Oct 7\nAttack", datetime(2023, 10, 7)),
         ("First\nCeasefire", datetime(2023, 11, 24)),
-        ("Rafah\nOffensive", datetime(2024, 5, 7)),
+        ("Rafah\nOperation", datetime(2024, 5, 7)),
         ("Beeper\nOperation", datetime(2024, 9, 17)),
         ("Sinwar\nAssassination", datetime(2024, 10, 17)),
+        ("Merkavot\nGideon", datetime(2025, 5, 16)),
     ]
 
     for label, event_date in events:
@@ -312,7 +344,6 @@ def trend(data, selected_subtopic, column):
             showlegend=False
         ))
 
-    fig.update_layout(legend_title_text="Affiliation")
     return fig
 
 
@@ -418,6 +449,20 @@ def heatmap(df, subtopic):
     # Ensure the grid is visible and fits properly
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2)
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='#454A4A', zeroline=False, dtick=0.2)
+
+    fig.update_layout(
+    xaxis = dict(title=dict(text='Factual Speech Similarity',
+                            font=dict(color='#454A4A', size=16))),
+    yaxis = dict(title=dict(text='Belief Speech Similarity',
+                            font=dict(color='#454A4A', size=16))),
+    xaxis2 = dict(title=dict(text='Factual Speech Similarity',
+                             font=dict(color='#454A4A', size=16))),
+    yaxis2 = dict(title=dict(text='Belief Speech Similarity',
+                             font=dict(color='#454A4A', size=16))),
+    )
+
+    fig.update_annotations(font=dict(size=16))
+
     return fig
 
 
@@ -520,6 +565,11 @@ def load_and_process_data(csv_filepath, sample=None):
         df = pd.read_csv(csv_filepath, index_col=None, on_bad_lines='skip')
         if sample:
             df = df.sample(n=sample, random_state=42)
+        
+        df['created_time'] = pd.to_datetime(df['created_time'], errors='coerce')
+        start_date = pd.Timestamp('2023-10-06')   # keep Oct 6 2023 and later
+        end_date   = pd.Timestamp('2025-05-31')   # keep up to May 31 2025
+        df = df[(df['created_time'] >= start_date) & (df['created_time'] <= end_date)]
 
         # Keep only relevant columns and rename
         columns_to_keep = ["comment_id", "created_time", "score", "predicted_label", "toxic", "severe_toxic",
@@ -725,14 +775,14 @@ def main():
     # Try loading precomputed visualizations FIRST
     visualizations = None
 
-    if os.path.exists(VIS_ZIP_PATH):
-        st.success("📦 Using locally cached visualizations.")
-        try:
-            with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
-                with zipf.open("visualizations.pkl") as f:
-                    visualizations = pickle.load(f)
-        except Exception as e:
-            st.warning(f"⚠️ Failed to load local visualizations: {e}. Will attempt fallback...")
+    # if os.path.exists(VIS_ZIP_PATH):
+    #     st.success("📦 Using locally cached visualizations.")
+    #     try:
+    #         with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
+    #             with zipf.open("visualizations.pkl") as f:
+    #                 visualizations = pickle.load(f)
+    #     except Exception as e:
+    #         st.warning(f"⚠️ Failed to load local visualizations: {e}. Will attempt fallback...")
 
     # If no valid local visualizations, try downloading from Google Drive
     if visualizations is None:

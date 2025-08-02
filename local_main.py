@@ -7,6 +7,8 @@ import zipfile
 from tqdm import tqdm
 from app import radar, histogram, trend, heatmap, pie_chart, load_and_process_data, str_to_list
 
+import plotly.io as pio
+pio.renderers.default = 'browser'
 
 def precompute_visualizations(df):
     '''
@@ -80,7 +82,7 @@ def save_visualizations_locally():
     os.makedirs(os.path.dirname(VIS_ZIP_PATH), exist_ok=True)
 
     print("🔄 Loading and processing dataset...")
-    df = load_and_process_data(FILE_PATH)
+    df = load_and_process_data(FILE_PATH, sample=5000)
 
     print("📊 Precomputing visualizations...")
     visualizations = precompute_visualizations(df)
