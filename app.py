@@ -776,14 +776,14 @@ def main():
     # Try loading precomputed visualizations FIRST
     visualizations = None
 
-    if os.path.exists(VIS_ZIP_PATH):
-        st.success("📦 Using locally cached visualizations.")
-        try:
-            with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
-                with zipf.open("visualizations.pkl") as f:
-                    visualizations = pickle.load(f)
-        except Exception as e:
-            st.warning(f"⚠️ Failed to load local visualizations: {e}. Will attempt fallback...")
+    # if os.path.exists(VIS_ZIP_PATH):
+    #     st.success("📦 Using locally cached visualizations.")
+    #     try:
+    #         with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
+    #             with zipf.open("visualizations.pkl") as f:
+    #                 visualizations = pickle.load(f)
+    #     except Exception as e:
+    #         st.warning(f"⚠️ Failed to load local visualizations: {e}. Will attempt fallback...")
 
     # If no valid local visualizations, try downloading from Google Drive
     if visualizations is None:
