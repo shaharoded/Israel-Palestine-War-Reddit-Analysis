@@ -18,7 +18,7 @@ warnings.filterwarnings('ignore', category=pd.errors.PerformanceWarning)
 
 # Google Drive viz zip file ID
 VIS_ZIP_PATH = "Viz/visualizations.zip"
-VIS_ZIP_GDRIVE_ID = "1fxEWLwRDQztM-hWYPG293RZvDNdvoE3w"  # replace with your actual file ID
+VIS_ZIP_GDRIVE_ID = "1UYk-s9aopyyA3e_oNpevF0tyDYSyrl0e"  # replace with your actual file ID
 VIS_ZIP_DOWNLOAD_URL = f"https://drive.google.com/uc?id={VIS_ZIP_GDRIVE_ID}"
 
 # Google Drive data file ID

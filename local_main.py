@@ -46,6 +46,7 @@ def precompute_visualizations(df):
     for subtopic in subtopics:
         visualizations[subtopic] = {}
         heatmap_fig = heatmap(df, subtopic)
+        comment_trend_fig = trend(df, subtopic, 'comment_id', agg='count')
         # Compute based on feature
         for feature in features:
             radar_fig = radars[feature]
@@ -55,7 +56,8 @@ def precompute_visualizations(df):
                 'heatmap': heatmap_fig,
                 'histogram': histogram_fig,
                 'trend': trend_fig,
-                'radar': radar_fig
+                'radar': radar_fig,
+                'comment_trend': comment_trend_fig
             }
             progress.update(1)
 
@@ -98,6 +100,39 @@ def save_visualizations_locally():
     os.remove(pickle_filename)
     print(f"✅ Visualization ZIP saved to: {VIS_ZIP_PATH}")
 
+
+def check_viz_keys():
+    """Quick check to see what keys exist in the current visualization zip"""
+    VIS_ZIP_PATH = "Viz/visualizations.zip"
+    
+    if not os.path.exists(VIS_ZIP_PATH):
+        print("❌ No visualization zip file found at:", VIS_ZIP_PATH)
+        return
+    
+    try:
+        with zipfile.ZipFile(VIS_ZIP_PATH, 'r') as zipf:
+            with zipf.open("visualizations.pkl") as f:
+                visualizations = pickle.load(f)
+        
+        print("✅ Successfully loaded visualizations.pkl")
+        print(f"📊 Available subtopics: {len([k for k in visualizations.keys() if k != '_meta'])}")
+        
+        # Check the first non-meta subtopic
+        first_subtopic = next(k for k in visualizations.keys() if k != '_meta')
+        first_feature = next(iter(visualizations[first_subtopic].keys()))
+        
+        print(f"🔍 Checking keys for subtopic '{first_subtopic}', feature '{first_feature}':")
+        keys = visualizations[first_subtopic][first_feature].keys()
+        print(f"   Available keys: {list(keys)}")
+        
+        if 'comment_trend' in keys:
+            print("✅ 'comment_trend' key EXISTS in the cached visualizations!")
+        else:
+            print("❌ 'comment_trend' key MISSING from cached visualizations!")
+            print("   You need to regenerate the cache using save_visualizations_locally()")
+            
+    except Exception as e:
+        print(f"❌ Error loading visualizations: {e}")
 
 
 if __name__ == "__main__":
