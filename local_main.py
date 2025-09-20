@@ -82,7 +82,7 @@ def save_visualizations_locally():
     os.makedirs(os.path.dirname(VIS_ZIP_PATH), exist_ok=True)
 
     print("🔄 Loading and processing dataset...")
-    df = load_and_process_data(FILE_PATH, sample=False)
+    df = load_and_process_data(FILE_PATH, sample=1000)
 
     print("📊 Precomputing visualizations...")
     visualizations = precompute_visualizations(df)

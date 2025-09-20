@@ -262,7 +262,7 @@ def histogram(data, selected_subtopic, column):
     return fig
 
 
-def trend(data, selected_subtopic, column):
+def trend(data, selected_subtopic, column, agg='mean'):
     data = data.copy()
     data = data[data['Topics'].apply(bool)]
     
@@ -273,13 +273,18 @@ def trend(data, selected_subtopic, column):
         data = data[data['Topics'] == selected_subtopic]
     
     # Guard from edge cases
-    if data.empty or data[column].dropna().empty:
+    if data.empty:
+        return go.Figure()
+    if agg == 'mean' and data[column].dropna().empty:
         return go.Figure()
     
     data['created_time'] = pd.to_datetime(data['created_time'])
     data['month'] = data['created_time'].dt.to_period('M').dt.to_timestamp()
 
-    grouped = data.groupby(['month', 'Affiliation'])[column].mean().reset_index()
+    if agg == 'count':
+        grouped = data.groupby(['month', 'Affiliation']).size().reset_index(name=column)
+    else:  # default to mean
+        grouped = data.groupby(['month', 'Affiliation'])[column].mean().reset_index()
 
     fig = px.line(
         grouped,
@@ -297,7 +302,7 @@ def trend(data, selected_subtopic, column):
     fig.update_layout(
         title_text="",
         xaxis_title='Month',
-        yaxis_title=f'Average {column}',
+        yaxis_title=f'Average {column}' if agg == 'mean' else 'Number of Comments',
         title_x=0.5,
         plot_bgcolor='rgba(0,0,0,0)',
         xaxis=dict(
@@ -317,7 +322,7 @@ def trend(data, selected_subtopic, column):
 
     # Timeline events
     events = [
-        ("Oct 7\nAttack", datetime(2023, 10, 7)),
+        ("Oct 7th\nAttack", datetime(2023, 10, 7)),
         ("First\nCeasefire", datetime(2023, 11, 24)),
         ("Rafah\nOperation", datetime(2024, 5, 7)),
         ("Beeper\nOperation", datetime(2024, 9, 17)),
@@ -681,6 +686,7 @@ def precompute_visualizations(df):
     for subtopic in subtopics:
         visualizations[subtopic] = {}
         heatmap_fig = heatmap(df, subtopic)
+        comment_trend_fig = trend(df, subtopic, 'comment_id', agg='count')
         for feature in features:
             radar_fig = radars[feature]
             histogram_fig = histogram(df, subtopic, feature)
@@ -689,7 +695,8 @@ def precompute_visualizations(df):
                 'heatmap': heatmap_fig,
                 'histogram': histogram_fig,
                 'trend': trend_fig,
-                'radar': radar_fig
+                'radar': radar_fig,
+                'comment_trend': comment_trend_fig
             }
             step += 1
             progress_bar.progress(step / total_steps)
@@ -895,6 +902,10 @@ def main():
     st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Trend of {selected_feature} by Affiliation for Topic '{selected_subtopic}'</h3>", 
                 unsafe_allow_html=True)
     st.plotly_chart(visualizations[selected_subtopic][selected_feature]['trend'], use_container_width=True)
+    
+    st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Comment Volume Trend by Affiliation for Topic '{selected_subtopic}'</h3>", 
+                unsafe_allow_html=True)
+    st.plotly_chart(visualizations[selected_subtopic][selected_feature]['comment_trend'], use_container_width=True)
     
     st.markdown(f"<h3 style='text-align: center; color: {text_color};'>Factual vs Emotional Speech by Affiliation for Topic '{selected_subtopic}'</h3>",
                 unsafe_allow_html=True)
