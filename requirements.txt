@@ -1,5 +1,6 @@
 streamlit
 plotly
+matplotlib
 pandas
 numpy
 gdown
